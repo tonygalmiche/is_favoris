@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="is_favoris.AddToFavoritesItem">
+        <AccordionItem class="'o_add_to_favorites_item'" description="'Ajouter cette vue aux favoris'">
+            <div class="px-3 py-2">
+                <input type="text" class="o_input mb-2" t-model="state.name" placeholder="Nom du favori"/>
+                <button class="btn btn-primary w-100" t-on-click="onAddFavorite">
+                    Ajouter
+                </button>
+            </div>
+        </AccordionItem>
+    </t>
+</templates>

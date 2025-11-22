@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue formulaire -->
+    <record id="view_is_favoris_form" model="ir.ui.view">
+        <field name="name">is.favoris.form</field>
+        <field name="model">is.favoris</field>
+        <field name="arch" type="xml">
+            <form string="Favoris" create="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="color" widget="color_picker"/>
+                            <field name="image" widget="image" class="oe_avatar"/>
+                            <field name="view_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste -->
+    <record id="view_is_favoris_tree" model="ir.ui.view">
+        <field name="name">is.favoris.list</field>
+        <field name="model">is.favoris</field>
+        <field name="arch" type="xml">
+            <list string="Favoris" create="false">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="view_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue Kanban -->
+    <record id="view_is_favoris_kanban" model="ir.ui.view">
+        <field name="name">is.favoris.kanban</field>
+        <field name="model">is.favoris</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_is_favoris" action="action_open_view" type="object" create="false">
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="color"/>
+                <field name="image"/>
+                <field name="view_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_global_click oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card">
+                            <div class="o_kanban_record_top p-2 mb-2 d-flex justify-content-center position-relative">
+                                <div class="o_kanban_record_headings w-100 text-center">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <div class="o_dropdown_kanban dropdown position-absolute end-0 top-0">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-bs-toggle="dropdown" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Modifier</a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Supprimer</a></t>
+                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body text-center">
+                                <field name="image" widget="image" options="{'size': [128, 128]}" class="mb-2" invisible="not image"/>
+                                <div class="text-muted">
+                                    <field name="view_id" invisible="1"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vue Bureau -->
+    <record id="view_is_favoris_bureau" model="ir.ui.view">
+        <field name="name">is.favoris.bureau</field>
+        <field name="model">is.favoris</field>
+        <field name="arch" type="xml">
+            <bureau image_field="image" color_field="color" action="action_open_view" create="false" type="object">
+                <field name="name"/>
+                <field name="image"/>
+                <field name="color"/>
+                <field name="position_x"/>
+                <field name="position_y"/>
+            </bureau>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_is_favoris" model="ir.actions.act_window">
+        <field name="name">Favoris</field>
+        <field name="res_model">is.favoris</field>
+        <field name="view_mode">bureau,kanban,list,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_is_favoris_root" name="Favoris" sequence="0" web_icon="is_favoris,static/description/icon.png" groups="is_favoris.group_has_favorites"/>
+    <menuitem id="menu_is_favoris" name="Favoris" parent="menu_is_favoris_root" action="action_is_favoris" sequence="10"/>
+
+</odoo>
