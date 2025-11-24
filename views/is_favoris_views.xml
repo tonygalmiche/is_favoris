@@ -13,7 +13,10 @@
                             <field name="name"/>
                             <field name="color" widget="color_picker"/>
                             <field name="image" widget="image" class="oe_avatar"/>
-                            <field name="view_id" invisible="1"/>
+                            <field name="view_id" readonly="1"/>
+                            <field name="action_id" readonly="1"/>
+                            <field name="url" placeholder="https://exemple.com"/>
+                            <field name="open_in_new_tab" invisible="not url"/>
                         </group>
                     </group>
                 </sheet>
@@ -26,10 +29,11 @@
         <field name="name">is.favoris.list</field>
         <field name="model">is.favoris</field>
         <field name="arch" type="xml">
-            <list string="Favoris" create="false">
+            <list string="Favoris">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="view_id"/>
+                <field name="action_id"/>
             </list>
         </field>
     </record>
@@ -45,6 +49,8 @@
                 <field name="color"/>
                 <field name="image"/>
                 <field name="view_id"/>
+                <field name="url"/>
+                <field name="open_in_new_tab"/>
                 <templates>
                     <t t-name="card">
                         <div t-attf-class="oe_kanban_global_click oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card">
@@ -89,6 +95,8 @@
                 <field name="color"/>
                 <field name="position_x"/>
                 <field name="position_y"/>
+                <field name="url"/>
+                <field name="open_in_new_tab"/>
             </bureau>
         </field>
     </record>

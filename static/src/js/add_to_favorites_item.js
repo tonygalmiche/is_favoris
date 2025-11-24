@@ -29,6 +29,7 @@ export class AddToFavoritesItem extends Component {
         // Trouver l'ID de la vue courante
         const viewType = this.env.config.viewType;
         const views = this.env.config.views || [];
+        const actionId = this.env.config.actionId;
         let viewId = false;
         
         // views est souvent [[id, type], ...]
@@ -62,7 +63,7 @@ export class AddToFavoritesItem extends Component {
         }
 
         try {
-            await this.orm.call("is.favoris", "create_from_view", [name, viewId]);
+            await this.orm.call("is.favoris", "create_from_view", [name, viewId, actionId]);
             this.notification.add("Il faut rafraîchir votre navigateur pour voir le menu « Favoris » apparaître.", { title: "Vue ajoutée aux favoris", type: "success" });
             // Reset name
             this.state.name = "";
