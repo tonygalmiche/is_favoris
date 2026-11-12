@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <div class="o_is_favoris_grille" t-att-class="{ o_is_favoris_deplacement: state.dragId }">
+            <div class="o_is_favoris_grille" t-ref="grille" t-att-class="{ o_is_favoris_deplacement: state.dragId }">
                 <div t-if="!state.favoris.length" class="o_is_favoris_vide text-muted">
                     <i class="fa fa-star-o fa-3x mb-3"/>
                     <p>Aucun favori pour l'instant.</p>
@@ -68,13 +68,6 @@
                         </t>
                     </div>
                 </t>
-
-                <div t-if="state.dragId" class="o_is_favoris_nouvelle_ligne"
-                     t-att-class="{ o_is_favoris_survol: state.survol === 'nouvelle' }"
-                     t-on-dragover="(ev) => this.onDragOver(ev, 'nouvelle')"
-                     t-on-drop="onDropNouvelleLigne">
-                    <i class="fa fa-plus me-2"/>Déposer ici pour créer une nouvelle ligne
-                </div>
             </div>
         </div>
     </t>
@@ -82,6 +75,7 @@
     <t t-name="is_favoris.Infobulle">
         <div class="fw-bold" t-esc="name"/>
         <div t-if="chemin" class="small opacity-75" t-esc="chemin"/>
+        <div t-if="vue" class="small opacity-75">Vue : <t t-esc="vue"/></div>
     </t>
 
 </templates>

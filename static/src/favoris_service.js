@@ -19,6 +19,23 @@ const ICONES_VUES = {
     hierarchy: "fa-sitemap",
 };
 
+const NOMS_VUES = {
+    list: "Liste",
+    kanban: "Kanban",
+    pivot: "Tableau croisé dynamique",
+    graph: "Graphique",
+    calendar: "Calendrier",
+    form: "Formulaire",
+    activity: "Activités",
+    gantt: "Gantt",
+    map: "Carte",
+    hierarchy: "Hiérarchie",
+};
+
+export function nomVue(viewType) {
+    return NOMS_VUES[viewType] || viewType || "";
+}
+
 export function iconeVue(viewType) {
     return ICONES_VUES[viewType] || "fa-star";
 }

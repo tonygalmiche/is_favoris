@@ -65,21 +65,6 @@ $is-favoris-couleurs: (
         background-color: rgba($primary, 0.08);
     }
 
-    .o_is_favoris_nouvelle_ligne {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: calc(var(--is-favoris-taille) / 2);
-        border: 2px dashed $gray-400;
-        border-radius: 10px;
-        color: $gray-600;
-
-        &.o_is_favoris_survol {
-            border-color: $primary;
-            color: $primary;
-        }
-    }
-
     .o_is_favoris_carte {
         position: relative;
         display: flex;

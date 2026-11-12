@@ -78,9 +78,5 @@
     <menuitem id="menu_is_favoris_root" name="Favoris" sequence="0"
               web_icon="is_favoris,static/description/icon.png"
               action="action_is_favoris_page"/>
-    <menuitem id="menu_is_favoris" name="Favoris" parent="menu_is_favoris_root"
-              action="action_is_favoris_page" sequence="10"/>
-    <menuitem id="menu_is_favoris_liste" name="Liste" parent="menu_is_favoris_root"
-              action="action_is_favoris_liste" sequence="20"/>
 
 </odoo>

@@ -1,18 +1,26 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import {
+    Component,
+    onMounted,
+    onWillStart,
+    useExternalListener,
+    useRef,
+    useState,
+} from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
-import { ECART, TAILLES, iconeVue } from "../favoris_service";
+import { ECART, TAILLES, iconeVue, nomVue } from "../favoris_service";
 
 /**
  * Page des favoris : grille de cases de taille fixe.
  * - Position mémorisée : ligne + case dans la ligne (cases vides possibles).
  * - Une ligne trop longue pour la fenêtre se replie et décale les lignes suivantes.
- * - Déplacement à la souris : case vide, insertion sur une case occupée
- *   (décalage vers la droite jusqu'au premier trou), ou nouvelle ligne.
+ * - Déplacement à la souris n'importe où sur l'écran : case vide (lignes vides
+ *   comprises), ou insertion sur une case occupée (décalage vers la droite
+ *   jusqu'au premier trou).
  */
 export class IsFavorisPage extends Component {
     static template = "is_favoris.Page";
@@ -28,7 +36,12 @@ export class IsFavorisPage extends Component {
             favoris: [],
             dragId: null,
             survol: null,
+            largeur: window.innerWidth,
+            hauteur: window.innerHeight,
         });
+        this.grilleRef = useRef("grille");
+        onMounted(() => this.mesurer());
+        useExternalListener(window, "resize", () => this.mesurer());
         this.tailles = [
             { key: "petite", label: "Petites" },
             { key: "moyenne", label: "Moyennes" },
@@ -51,8 +64,22 @@ export class IsFavorisPage extends Component {
         return `--is-favoris-taille: ${TAILLES[this.state.taille] || TAILLES.moyenne}px; --is-favoris-ecart: ${ECART}px;`;
     }
 
-    /** Lignes à afficher : liste de cases (favori ou vide), dans l'ordre mémorisé */
+    get pas() {
+        return (TAILLES[this.state.taille] || TAILLES.moyenne) + ECART;
+    }
+
+    /** Nombre de cases par ligne affichée, selon la largeur de la grille */
+    get nbColonnes() {
+        return Math.max(1, Math.floor((this.state.largeur + ECART) / this.pas));
+    }
+
+    /**
+     * Lignes à afficher : toute la surface de l'écran est découpée en cases,
+     * pour pouvoir déposer un favori n'importe où (lignes vides comprises).
+     * Une ligne plus longue que l'écran se replie sur plusieurs lignes affichées.
+     */
     get lignes() {
+        const nbColonnes = this.nbColonnes;
         const parLigne = new Map();
         for (const favori of this.state.favoris) {
             if (!parLigne.has(favori.ligne)) {
@@ -60,10 +87,19 @@ export class IsFavorisPage extends Component {
             }
             parLigne.get(favori.ligne).push(favori);
         }
+        const derniere = this.state.favoris.length
+            ? Math.max(...this.state.favoris.map((f) => f.ligne))
+            : -1;
+        // Assez de lignes pour remplir l'écran, + 1 ligne vide sous la dernière
+        const nbLignesEcran = Math.floor((this.state.hauteur + ECART) / this.pas);
+        const nbLignes = Math.max(derniere + 2, nbLignesEcran);
         const lignes = [];
-        for (const numero of [...parLigne.keys()].sort((a, b) => a - b)) {
-            const favoris = parLigne.get(numero);
-            const nbCases = Math.max(...favoris.map((f) => f.colonne)) + 1;
+        for (let numero = 0; numero < nbLignes; numero++) {
+            const favoris = parLigne.get(numero) || [];
+            // Complète jusqu'au bout de la dernière ligne affichée (même nombre de cases
+            // pendant un déplacement, pour que rien ne bouge au survol)
+            const occupees = favoris.length ? Math.max(...favoris.map((f) => f.colonne)) + 1 : 0;
+            const nbCases = Math.max(1, Math.ceil(occupees / nbColonnes)) * nbColonnes;
             const cases = [];
             for (let colonne = 0; colonne < nbCases; colonne++) {
                 cases.push({
@@ -73,13 +109,20 @@ export class IsFavorisPage extends Component {
                     favori: favoris.find((f) => f.colonne === colonne) || null,
                 });
             }
-            if (this.state.dragId) {
-                // Case de plus en fin de ligne pendant un déplacement
-                cases.push({ key: `${numero}-${nbCases}`, ligne: numero, colonne: nbCases, favori: null });
-            }
             lignes.push({ numero, cases });
         }
         return lignes;
+    }
+
+    mesurer() {
+        const el = this.grilleRef.el;
+        if (el) {
+            const style = getComputedStyle(el);
+            this.state.largeur =
+                el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            this.state.hauteur =
+                el.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+        }
     }
 
     icone(favori) {
@@ -104,7 +147,11 @@ export class IsFavorisPage extends Component {
 
     /** Infobulle : nom et chemin complet du menu d'origine */
     infobulle(favori) {
-        return JSON.stringify({ name: favori.name, chemin: favori.chemin_menu || "" });
+        return JSON.stringify({
+            name: favori.name,
+            chemin: favori.chemin_menu || "",
+            vue: nomVue(favori.view_type),
+        });
     }
 
     // ------------------------------------------------------------------
@@ -200,11 +247,6 @@ export class IsFavorisPage extends Component {
         }
     }
 
-    async onDropNouvelleLigne(ev) {
-        const lignes = this.state.favoris.map((f) => f.ligne);
-        await this.onDrop(ev, lignes.length ? Math.max(...lignes) + 1 : 0, 0);
-    }
-
     async deplacer(id, ligne, colonne) {
         const favoris = this.state.favoris;
         const favori = favoris.find((f) => f.id === id);
@@ -228,21 +270,11 @@ export class IsFavorisPage extends Component {
         }
         favori.ligne = ligne;
         favori.colonne = colonne;
-        this.compacterLignes();
         const positions = favoris
             .filter((f) => avant.get(f.id) !== `${f.ligne}-${f.colonne}`)
             .map((f) => [f.id, f.ligne, f.colonne]);
         if (positions.length) {
             await this.orm.call("is.favoris", "enregistrer_positions", [positions]);
-        }
-    }
-
-    /** Supprime les lignes vides : lignes numérotées 0, 1, 2… */
-    compacterLignes() {
-        const numeros = [...new Set(this.state.favoris.map((f) => f.ligne))].sort((a, b) => a - b);
-        const nouveau = new Map(numeros.map((n, index) => [n, index]));
-        for (const f of this.state.favoris) {
-            f.ligne = nouveau.get(f.ligne);
         }
     }
 }

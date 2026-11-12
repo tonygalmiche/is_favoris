@@ -86,7 +86,8 @@ class IsFavoris(models.Model):
     def _compute_chemin_menu(self):
         for obj in self:
             menu = obj.menu_id.sudo()
-            obj.chemin_menu = menu.complete_name if menu else (obj.action_id.sudo().name or "")
+            chemin = menu.complete_name if menu else (obj.action_id.sudo().name or "")
+            obj.chemin_menu = (chemin or "").replace("/", " / ")
 
     @api.model_create_multi
     def create(self, vals_list):
