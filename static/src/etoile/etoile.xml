@@ -10,14 +10,22 @@
                     t-on-click="ajouter">
                 <i class="fa fa-star-o"/>
             </button>
-            <Dropdown t-else="" position="'bottom-start'">
+            <Dropdown t-else="" position="'bottom-start'" menuClass="'o_is_favoris_etoile_menu'">
                 <button type="button" class="btn btn-link o_is_favoris_etoile o_is_favoris_etoile_jaune px-1 py-0"
                         data-tooltip="Déjà dans les favoris">
                     <i class="fa fa-star"/>
                 </button>
                 <t t-set-slot="content">
-                    <t t-foreach="liste" t-as="favori" t-key="favori.id">
-                        <div class="dropdown-header text-truncate" t-esc="favori.name"/>
+                    <t t-set="rechercheAffichee" t-value="descriptionFiltre()"/>
+                    <t t-foreach="favorisMenu" t-as="favori" t-key="favori.id">
+                        <div class="dropdown-header o_is_favoris_etoile_entete">
+                            <div class="fw-bold text-body">
+                                <i t-if="favori.description_filtre and favori.description_filtre === rechercheAffichee"
+                                   class="fa fa-check text-success me-1" title="Recherche affichée"/>
+                                <t t-esc="favori.name"/>
+                            </div>
+                            <div class="small text-muted" t-esc="favori.description_filtre or 'Sans recherche mémorisée'"/>
+                        </div>
                         <DropdownItem onSelected="() => this.mettreAJour(favori)">
                             <i class="fa fa-refresh me-2"/>Mettre à jour avec la vue affichée
                         </DropdownItem>

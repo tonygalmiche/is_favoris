@@ -56,6 +56,25 @@ export class IsFavorisEtoile extends Component {
         return this.favorisService.find(this.favoris.favoris, this.actionId, this.viewType, this.resId);
     }
 
+    /** Favori ouvert depuis la page des favoris (étiquette ⭐ active dans la recherche) */
+    get favoriActifId() {
+        const searchModel = this.env.searchModel;
+        for (const { searchItemId } of searchModel?.query || []) {
+            const id = searchModel.searchItems[searchItemId]?.isFavorisId;
+            if (id) {
+                return id;
+            }
+        }
+        return false;
+    }
+
+    /** Favoris à afficher dans le menu : le favori actif seul s'il y en a un, sinon tous */
+    get favorisMenu() {
+        const liste = this.existants;
+        const actif = liste.find((f) => f.id === this.favoriActifId);
+        return actif ? [actif] : liste;
+    }
+
     /** Photo de la vue affichée, comme un favori standard d'Odoo */
     valeursVue() {
         const vals = {

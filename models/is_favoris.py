@@ -207,6 +207,7 @@ class IsFavoris(models.Model):
             "action_id": f.action_id.id,
             "view_type": f.view_type,
             "res_id": f.res_id,
+            "description_filtre": f.description_filtre or "",
         } for f in self.search([("user_id", "=", self.env.uid)])]
 
     @api.model

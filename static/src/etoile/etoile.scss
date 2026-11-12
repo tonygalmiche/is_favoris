@@ -1,3 +1,13 @@
+.o_is_favoris_etoile_menu {
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .o_is_favoris_etoile_entete {
+        white-space: normal;
+    }
+}
+
 .o_is_favoris_etoile {
     color: $gray-500;
     font-size: 1.1rem;
