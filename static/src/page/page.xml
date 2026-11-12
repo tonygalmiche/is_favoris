@@ -62,7 +62,7 @@
                                     </div>
                                     <img t-if="favori.image" class="o_is_favoris_image" t-att-src="imageUrl(favori)" alt="" draggable="false"/>
                                     <i t-else="" t-attf-class="fa #{icone(favori)} o_is_favoris_icone"/>
-                                    <div class="o_is_favoris_nom" t-esc="favori.name"/>
+                                    <div t-if="!favori.image_seule" class="o_is_favoris_nom" t-esc="favori.name"/>
                                 </div>
                             </div>
                         </t>

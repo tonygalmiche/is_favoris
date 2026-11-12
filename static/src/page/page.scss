@@ -129,9 +129,35 @@ $is-favoris-couleurs: (
     }
 
     .o_is_favoris_image {
-        max-width: 60%;
-        max-height: 50%;
+        height: 55%;
+        max-width: 85%;
         object-fit: contain;
+    }
+
+    // Image seule : l'image occupe toute la case, sans le nom
+    .o_is_favoris_carte.o_is_favoris_image_seule {
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+        border-color: transparent;
+
+        .o_is_favoris_image {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            object-fit: cover;
+        }
+
+        &.o_is_favoris_mis_en_avant {
+            border-color: #f5b400;
+        }
+
+        .o_is_favoris_outils {
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            padding: 0 4px;
+        }
     }
 
     .o_is_favoris_nom {

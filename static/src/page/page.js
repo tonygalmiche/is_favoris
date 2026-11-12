@@ -136,6 +136,9 @@ export class IsFavorisPage extends Component {
     classesCarte(favori) {
         const couleur = favori.image ? 0 : favori.color || 0;
         const classes = ["o_is_favoris_carte", `o_is_favoris_couleur_${couleur}`];
+        if (favori.image_seule) {
+            classes.push("o_is_favoris_image_seule");
+        }
         if (favori.mise_en_avant) {
             classes.push("o_is_favoris_mis_en_avant");
         }

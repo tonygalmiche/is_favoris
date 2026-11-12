@@ -15,6 +15,7 @@
                         <group string="Affichage">
                             <field name="color" widget="color_picker"/>
                             <field name="icone"/>
+                            <field name="image_seule" invisible="not image"/>
                             <field name="mise_en_avant"/>
                         </group>
                         <group string="Origine">
