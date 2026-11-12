@@ -1,0 +1,179 @@
+$is-favoris-couleurs: (
+    1: #f06050,
+    2: #f4a460,
+    3: #f7cd1f,
+    4: #6cc1ed,
+    5: #814968,
+    6: #eb7e7f,
+    7: #2c8397,
+    8: #475577,
+    9: #d6145f,
+    10: #30c381,
+    11: #9365b8,
+);
+
+.o_is_favoris_page {
+    --is-favoris-taille: 100px;
+    --is-favoris-ecart: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: $body-bg;
+
+    .o_is_favoris_barre {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 24px;
+        border-bottom: 1px solid $border-color;
+    }
+
+    .o_is_favoris_grille {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 24px;
+    }
+
+    .o_is_favoris_vide {
+        text-align: center;
+        margin-top: 4rem;
+    }
+
+    // Une ligne mémorisée ; trop longue pour la fenêtre, elle se replie
+    .o_is_favoris_ligne {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--is-favoris-ecart);
+        margin-bottom: var(--is-favoris-ecart);
+    }
+
+    .o_is_favoris_case {
+        flex: 0 0 auto;
+        width: var(--is-favoris-taille);
+        height: var(--is-favoris-taille);
+        border-radius: 10px;
+    }
+
+    // Pendant un déplacement : cases vides visibles
+    .o_is_favoris_deplacement .o_is_favoris_case {
+        outline: 1px dashed $gray-400;
+        outline-offset: -1px;
+    }
+
+    .o_is_favoris_case.o_is_favoris_survol {
+        outline: 2px dashed $primary;
+        background-color: rgba($primary, 0.08);
+    }
+
+    .o_is_favoris_nouvelle_ligne {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(var(--is-favoris-taille) / 2);
+        border: 2px dashed $gray-400;
+        border-radius: 10px;
+        color: $gray-600;
+
+        &.o_is_favoris_survol {
+            border-color: $primary;
+            color: $primary;
+        }
+    }
+
+    .o_is_favoris_carte {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6%;
+        width: 100%;
+        height: 100%;
+        padding: 6px;
+        border-radius: 10px;
+        border: 2px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        background-color: #ffffff;
+        color: #212529;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.1s, box-shadow 0.1s;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+            .o_is_favoris_outils {
+                opacity: 1;
+            }
+        }
+
+        &.o_is_favoris_deplace {
+            opacity: 0.4;
+        }
+
+        &.o_is_favoris_mis_en_avant {
+            border: 3px solid #f5b400;
+            box-shadow: 0 0 0 2px rgba(245, 180, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        @each $index, $couleur in $is-favoris-couleurs {
+            &.o_is_favoris_couleur_#{$index} {
+                background: linear-gradient(to bottom, $couleur, rgba($couleur, 0.75));
+                color: #ffffff;
+
+                .o_is_favoris_outils .btn {
+                    color: #ffffff;
+                }
+            }
+        }
+
+        // Jaune : texte foncé pour rester lisible
+        &.o_is_favoris_couleur_3 {
+            color: #212529;
+
+            .o_is_favoris_outils .btn {
+                color: #212529;
+            }
+        }
+    }
+
+    .o_is_favoris_icone {
+        font-size: calc(var(--is-favoris-taille) * 0.34);
+        line-height: 1;
+    }
+
+    .o_is_favoris_image {
+        max-width: 60%;
+        max-height: 50%;
+        object-fit: contain;
+    }
+
+    .o_is_favoris_nom {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: calc(var(--is-favoris-taille) * 0.11);
+        line-height: 1.2;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        word-break: break-word;
+    }
+
+    .o_is_favoris_outils {
+        position: absolute;
+        top: 3px;
+        right: 5px;
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.1s;
+
+        .btn {
+            font-size: 0.8rem;
+            color: $gray-700;
+        }
+    }
+}

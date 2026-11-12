@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="is_favoris.Etoile">
+        <t t-if="visible">
+            <t t-set="liste" t-value="existants"/>
+            <button t-if="!liste.length" type="button"
+                    class="btn btn-link o_is_favoris_etoile px-1 py-0"
+                    data-tooltip="Ajouter aux favoris"
+                    t-on-click="ajouter">
+                <i class="fa fa-star-o"/>
+            </button>
+            <Dropdown t-else="" position="'bottom-start'">
+                <button type="button" class="btn btn-link o_is_favoris_etoile o_is_favoris_etoile_jaune px-1 py-0"
+                        data-tooltip="Déjà dans les favoris">
+                    <i class="fa fa-star"/>
+                </button>
+                <t t-set-slot="content">
+                    <t t-foreach="liste" t-as="favori" t-key="favori.id">
+                        <div class="dropdown-header text-truncate" t-esc="favori.name"/>
+                        <DropdownItem onSelected="() => this.mettreAJour(favori)">
+                            <i class="fa fa-refresh me-2"/>Mettre à jour avec la vue affichée
+                        </DropdownItem>
+                        <DropdownItem onSelected="() => this.retirer(favori)">
+                            <i class="fa fa-trash me-2"/>Retirer des favoris
+                        </DropdownItem>
+                        <div class="dropdown-divider"/>
+                    </t>
+                    <DropdownItem onSelected="() => this.ajouter()">
+                        <i class="fa fa-plus me-2"/>Ajouter un nouveau favori
+                    </DropdownItem>
+                </t>
+            </Dropdown>
+        </t>
+    </t>
+
+    <!-- Étoile juste avant la roue dentée, dans les 3 affichages du panneau de contrôle -->
+    <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
+        <!-- Liste des favoris : boutons Page / Liste à droite, comme les boutons de changement de vue -->
+        <xpath expr="//t[@t-slot='control-panel-navigation-additional']" position="before">
+            <nav t-if="env.searchModel?.resModel === 'is.favoris' and env.config.viewType === 'list'"
+                 class="o_cp_switch_buttons d-print-none d-inline-flex btn-group">
+                <button class="btn btn-secondary" data-tooltip="Page des favoris"
+                        t-on-click="() => this.actionService.doAction('is_favoris.action_is_favoris_page', { clearBreadcrumbs: true })">
+                    <i class="fa fa-th-large"/>
+                </button>
+                <button class="btn btn-secondary active" data-tooltip="Liste">
+                    <i class="oi oi-view-list"/>
+                </button>
+            </nav>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='breadcrumb-additional-actions']/t[@t-slot='control-panel-additional-actions']" position="before">
+            <IsFavorisEtoile/>
+        </xpath>
+        <xpath expr="//t[@t-if='env.config.noBreadcrumbs']/section/t[@t-slot='control-panel-additional-actions']" position="before">
+            <IsFavorisEtoile/>
+        </xpath>
+        <xpath expr="//t[@t-elif='env.isSmall']/section/t[@t-slot='control-panel-additional-actions']" position="before">
+            <IsFavorisEtoile/>
+        </xpath>
+    </t>
+
+</templates>

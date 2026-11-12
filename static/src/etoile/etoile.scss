@@ -1,0 +1,13 @@
+.o_is_favoris_etoile {
+    color: $gray-500;
+    font-size: 1.1rem;
+    line-height: 1;
+
+    &:hover {
+        color: #f5b400;
+    }
+
+    &.o_is_favoris_etoile_jaune {
+        color: #f5b400;
+    }
+}

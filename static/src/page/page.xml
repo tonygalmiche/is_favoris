@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="is_favoris.Page">
+        <div class="o_action o_is_favoris_page" t-att-style="style">
+            <div class="o_is_favoris_barre">
+                <h4 class="m-0">Favoris</h4>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <span class="text-muted d-none d-md-inline">Taille :</span>
+                    <div class="btn-group btn-group-sm">
+                        <t t-foreach="tailles" t-as="taille" t-key="taille.key">
+                            <button type="button" class="btn"
+                                    t-att-class="state.taille === taille.key ? 'btn-primary' : 'btn-secondary'"
+                                    t-on-click="() => this.changerTaille(taille.key)"
+                                    t-esc="taille.label"/>
+                        </t>
+                    </div>
+                    <nav class="o_cp_switch_buttons btn-group ms-3">
+                        <button type="button" class="btn btn-secondary active" data-tooltip="Page des favoris">
+                            <i class="fa fa-th-large"/>
+                        </button>
+                        <button type="button" class="btn btn-secondary" t-on-click="ouvrirListe"
+                                data-tooltip="Liste">
+                            <i class="oi oi-view-list"/>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="o_is_favoris_grille" t-att-class="{ o_is_favoris_deplacement: state.dragId }">
+                <div t-if="!state.favoris.length" class="o_is_favoris_vide text-muted">
+                    <i class="fa fa-star-o fa-3x mb-3"/>
+                    <p>Aucun favori pour l'instant.</p>
+                    <p>Cliquez sur l'étoile <i class="fa fa-star-o"/> à côté du titre d'une page pour l'ajouter ici.</p>
+                </div>
+
+                <t t-foreach="lignes" t-as="ligne" t-key="ligne.numero">
+                    <div class="o_is_favoris_ligne">
+                        <t t-foreach="ligne.cases" t-as="cellule" t-key="cellule.key">
+                            <div class="o_is_favoris_case"
+                                 t-att-class="{ o_is_favoris_survol: state.survol === cellule.key }"
+                                 t-on-dragover="(ev) => this.onDragOver(ev, cellule.key)"
+                                 t-on-drop="(ev) => this.onDrop(ev, cellule.ligne, cellule.colonne)">
+                                <t t-set="favori" t-value="cellule.favori"/>
+                                <div t-if="favori"
+                                     t-att-class="classesCarte(favori)"
+                                     draggable="true"
+                                     data-tooltip-template="is_favoris.Infobulle"
+                                     t-att-data-tooltip-info="infobulle(favori)"
+                                     t-on-dragstart="(ev) => this.onDragStart(ev, favori)"
+                                     t-on-dragend="onDragEnd"
+                                     t-on-click="() => this.ouvrir(favori)">
+                                    <div class="o_is_favoris_outils">
+                                        <button type="button" class="btn btn-link p-0" title="Modifier"
+                                                t-on-click.stop="() => this.modifier(favori)">
+                                            <i class="fa fa-pencil"/>
+                                        </button>
+                                        <button type="button" class="btn btn-link p-0" title="Supprimer"
+                                                t-on-click.stop="() => this.supprimer(favori)">
+                                            <i class="fa fa-trash"/>
+                                        </button>
+                                    </div>
+                                    <img t-if="favori.image" class="o_is_favoris_image" t-att-src="imageUrl(favori)" alt="" draggable="false"/>
+                                    <i t-else="" t-attf-class="fa #{icone(favori)} o_is_favoris_icone"/>
+                                    <div class="o_is_favoris_nom" t-esc="favori.name"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <div t-if="state.dragId" class="o_is_favoris_nouvelle_ligne"
+                     t-att-class="{ o_is_favoris_survol: state.survol === 'nouvelle' }"
+                     t-on-dragover="(ev) => this.onDragOver(ev, 'nouvelle')"
+                     t-on-drop="onDropNouvelleLigne">
+                    <i class="fa fa-plus me-2"/>Déposer ici pour créer une nouvelle ligne
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="is_favoris.Infobulle">
+        <div class="fw-bold" t-esc="name"/>
+        <div t-if="chemin" class="small opacity-75" t-esc="chemin"/>
+    </t>
+
+</templates>

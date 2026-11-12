@@ -1,46 +1,42 @@
 # InfoSaône - Gestion des favoris pour Odoo 18
 
-Ce module permet aux utilisateurs de gérer leurs favoris dans Odoo 18 et de les afficher notamment sur une vue "Bureau".
+Page d'accueil personnelle de raccourcis vers des vues Odoo, avec leurs filtres.
 
-## Fonctionnalités
+## Fonctionnement
 
-*   **Gestion des favoris :** Permet de sauvegarder des vues spécifiques comme favoris.
-*   **Intégration Bureau :** Les favoris peuvent être affichés et organisés sur la vue "Bureau" (fournie par le module `is_bureau`).
-*   **Organisation :**
-    *   Nom personnalisé
-    *   Couleur (attribuée aléatoirement à la création si non définie)
-    *   Image personnalisable
-    *   Séquence (ordre d'affichage)
-*   **Accès rapide :** Un clic sur un favori ouvre la vue correspondante.
-*   **Gestion automatique des droits :**
-    *   L'utilisateur est automatiquement ajouté au groupe de sécurité "A des favoris" (`group_has_favorites`) lorsqu'il crée son premier favori.
-    *   Il est retiré de ce groupe lorsqu'il supprime son dernier favori.
-    *   Le menu "Favoris" n'est visible que pour les utilisateurs ayant au moins un favori.
+- **Étoile** à côté du titre de chaque page, avant la roue dentée :
+  - grise : un clic ajoute la page aux favoris (nom automatique : nom du menu, ou de l'enregistrement sur un formulaire) ;
+  - jaune : la page a déjà un favori (même menu et même type de vue, même enregistrement sur un formulaire) ; un clic ouvre un menu : mettre à jour avec la vue affichée, retirer, ajouter un nouveau favori.
+- **Mémorisé** : menu, type de vue, enregistrement (formulaire), filtres, regroupements, tri (y compris clic sur une colonne), réglages des vues pivot et graphique.
+- **Page des favoris** (menu « Favoris », action d'accueil des utilisateurs internes) :
+  - cases de taille fixe, cases vides possibles ; position mémorisée en ligne + case ;
+  - ligne trop longue pour la fenêtre : elle se replie et décale les lignes suivantes ;
+  - déplacement à la souris : case vide, insertion sur une case occupée, nouvelle ligne ;
+  - carte : couleur, icône (type de vue par défaut) ou image, mise en avant (bordure) ;
+  - infobulle : nom et chemin complet du menu d'origine ;
+  - modification (crayon) et suppression (corbeille) au survol ;
+  - taille de toutes les cases : petites, moyennes, grandes (préférence par utilisateur).
+- Nouveau favori : tout à la fin (après le dernier favori de la dernière ligne, nouvelle ligne si elle est pleine à l'écran).
+- Chacun ne voit que ses favoris.
 
-## Détails Techniques
+## Technique
 
-### Dépendances
-*   `base`
-*   `web`
-*   `is_bureau` (Nécessaire pour la vue de type "Bureau")
+- Modèle `is.favoris` : domaine, contexte et tri stockés comme un `ir.filters`, sans en créer (menu ⭐ standard non encombré).
+- Capture : `searchModel.getIrFilterValues()` (même fonction que les favoris standard).
+- Ouverture : action d'origine avec la clé de contexte `is_favoris_filtre` ; patch du `SearchModel` qui ajoute le favori comme favori par défaut, en mémoire (facette retirable).
+- Étoile : composant ajouté au `ControlPanel` ; patch du `FormController` pour suivre l'enregistrement affiché.
+- Préférence de taille : `res.users.is_favoris_taille`.
+- Action d'accueil : remplie à l'installation, à la migration et à la création d'un utilisateur, seulement si elle est vide.
 
-### Modèle `is.favoris`
-Ce modèle hérite de `is.bureau.mixin` pour le positionnement sur le bureau.
-Champs principaux :
-*   `name` : Nom du favori.
-*   `view_id` : Référence à la vue cible (`ir.ui.view`).
-*   `user_id` : Propriétaire du favori.
-*   `color` : Couleur d'affichage.
-*   `image` : Icône ou image du favori.
+## Migration depuis la version 0.1 (vue Bureau, is_bureau)
 
-### Assets Web
-Le module ajoute des composants JS/XML pour l'intégration de l'ajout aux favoris dans l'interface Odoo (`add_to_favorites_item.js`).
+Script `migrations/18.0.1.0.0/post-migrate.py`, lancé par le `-u is_favoris` :
 
-## Utilisation
+- positions : ordre d'origine sur le bureau, rangé par lignes de 8 ;
+- type de vue et menu d'origine retrouvés ;
+- action d'accueil des utilisateurs internes qui n'en ont pas.
 
-1.  Depuis n'importe quelle vue supportée, utilisez l'action "Ajouter aux favoris" (via le menu de recherche ou d'action, selon l'intégration JS).
-2.  Accédez au menu principal "Favoris" pour voir vos favoris sous forme de liste, Kanban ou Bureau.
-3.  Sur la vue Bureau, vous pouvez déplacer vos icônes de favoris librement.
+is_bureau n'est plus utilisé : à désinstaller ensuite.
 
 ## Auteur
 
