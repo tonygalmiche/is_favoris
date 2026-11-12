@@ -76,6 +76,10 @@
         <div class="fw-bold" t-esc="name"/>
         <div t-if="chemin" class="small opacity-75" t-esc="chemin"/>
         <div t-if="vue" class="small opacity-75">Vue : <t t-esc="vue"/></div>
+        <div t-if="filtre" class="small opacity-75">Recherche : <t t-esc="filtre"/></div>
+        <div t-if="creation" class="small opacity-75">
+            Créé le <t t-esc="creation"/><t t-if="miseAJour"> / mis à jour le <t t-esc="miseAJour"/></t>
+        </div>
     </t>
 
 </templates>

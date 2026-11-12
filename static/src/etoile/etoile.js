@@ -69,8 +69,25 @@ export class IsFavorisEtoile extends Component {
             vals.domain = irFilter.domain;
             vals.context = irFilter.context;
             vals.sort = irFilter.sort;
+            vals.description_filtre = this.descriptionFiltre();
         }
         return vals;
+    }
+
+    /** Texte des étiquettes affichées dans la recherche, ex. « En cours · Client : Dupont · Regroupé par Étape > Commercial » */
+    descriptionFiltre() {
+        return this.env.searchModel.facets
+            .map((facet) => {
+                const valeurs = facet.values.join(` ${facet.separator} `);
+                if (facet.type === "field") {
+                    return `${facet.title} : ${valeurs}`;
+                }
+                if (facet.type === "groupBy") {
+                    return `Regroupé par ${valeurs}`;
+                }
+                return valeurs;
+            })
+            .join(" · ");
     }
 
     async ajouter() {

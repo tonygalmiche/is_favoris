@@ -30,6 +30,7 @@ export class IsFavorisPage extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.dialog = useService("dialog");
+        this.menu = useService("menu");
         this.favorisService = useService("is_favoris");
         this.state = useState({
             taille: "moyenne",
@@ -151,6 +152,10 @@ export class IsFavorisPage extends Component {
             name: favori.name,
             chemin: favori.chemin_menu || "",
             vue: nomVue(favori.view_type),
+            filtre: favori.description_filtre || "",
+            creation: favori.date_creation,
+            miseAJour:
+                favori.date_mise_a_jour !== favori.date_creation ? favori.date_mise_a_jour : "",
         });
     }
 
@@ -172,6 +177,10 @@ export class IsFavorisPage extends Component {
             }
             if (res.filtre) {
                 options.additionalContext = { is_favoris_filtre: res.filtre };
+            }
+            // Affiche l'application et les menus d'origine (et non plus « Favoris »)
+            if (res.menu_id && this.menu.getMenu(res.menu_id)) {
+                options.onActionReady = () => this.menu.setCurrentMenu(res.menu_id);
             }
             await this.action.doAction(res.action_id, options);
         } else if (res.action) {

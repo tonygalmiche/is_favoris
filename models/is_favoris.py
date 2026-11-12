@@ -3,6 +3,7 @@
 import random
 
 from odoo import api, fields, models
+from odoo.tools.misc import format_date
 
 # Taille des cases en pixels, écart entre cases et marge de la page (mêmes valeurs que page.js)
 TAILLES = {"petite": 80, "moyenne": 100, "grande": 130}
@@ -77,6 +78,12 @@ class IsFavoris(models.Model):
     res_id = fields.Integer("Enregistrement")
     menu_id = fields.Many2one("ir.ui.menu", string="Menu", ondelete="set null")
     chemin_menu = fields.Char("Chemin du menu", compute="_compute_chemin_menu")
+    date_mise_a_jour = fields.Datetime(
+        "Mis à jour le", help="Dernière mise à jour de la vue mémorisée (étoile)"
+    )
+    description_filtre = fields.Char(
+        "Recherche affichée", help="Étiquettes de la recherche au moment de la création du favori"
+    )
     domain = fields.Text("Filtre")
     context = fields.Text("Contexte")
     sort = fields.Text("Tri")
@@ -148,6 +155,8 @@ class IsFavoris(models.Model):
             "domain": vals.get("domain") or "[]",
             "context": repr(context),
             "sort": vals.get("sort") or "[]",
+            "description_filtre": vals.get("description_filtre") or False,
+            "date_mise_a_jour": fields.Datetime.now(),
         }
 
     @api.model
@@ -216,6 +225,9 @@ class IsFavoris(models.Model):
                 "image_seule": bool(f.image) and f.image_seule,
                 "view_type": f.view_type or (f.view_id.type if f.view_id else False),
                 "chemin_menu": f.chemin_menu,
+                "description_filtre": f.description_filtre or "",
+                "date_creation": format_date(self.env, f.create_date),
+                "date_mise_a_jour": format_date(self.env, f.date_mise_a_jour or f.create_date),
                 "write_date": str(f.write_date),
             } for f in favoris],
         }
@@ -241,11 +253,12 @@ class IsFavoris(models.Model):
                 "action_id": self.action_id.id,
                 "view_type": view_type,
                 "res_id": self.res_id if view_type == "form" else False,
+                "menu_id": self.menu_id.id,
             }
             if self.domain or self.context or self.sort:
                 res["filtre"] = {
                     "id": self.id,
-                    "name": self.name,
+                    "name": self.description_filtre or self.name,
                     "domain": self.domain or "[]",
                     "context": self.context or "{}",
                     "sort": self.sort or "[]",

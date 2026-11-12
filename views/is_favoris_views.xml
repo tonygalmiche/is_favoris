@@ -26,6 +26,9 @@
                         </group>
                     </group>
                     <group string="Mémorisé" invisible="url">
+                        <field name="description_filtre" readonly="1"/>
+                        <field name="create_date" string="Créé le" readonly="1"/>
+                        <field name="date_mise_a_jour" readonly="1"/>
                         <field name="domain" readonly="1"/>
                         <field name="context" readonly="1"/>
                         <field name="sort" readonly="1"/>
