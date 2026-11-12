@@ -10,6 +10,20 @@ TAILLES = {"petite": 80, "moyenne": 100, "grande": 130}
 ECART = 12
 MARGE = 24
 
+# Noms des types de vue (mêmes valeurs que favoris_service.js)
+NOMS_VUES = {
+    "list": "Liste",
+    "kanban": "Kanban",
+    "pivot": "Tableau croisé dynamique",
+    "graph": "Graphique",
+    "calendar": "Calendrier",
+    "form": "Formulaire",
+    "activity": "Activités",
+    "gantt": "Gantt",
+    "map": "Carte",
+    "hierarchy": "Hiérarchie",
+}
+
 # Clés du contexte de l'action inutiles dans un favori
 CLES_CONTEXTE_IGNOREES = ("active_menu_id", "active_view_id", "view_type")
 
@@ -74,7 +88,8 @@ class IsFavoris(models.Model):
 
     action_id = fields.Many2one("ir.actions.act_window", string="Action", ondelete="cascade")
     view_id = fields.Many2one("ir.ui.view", string="Vue", ondelete="set null")
-    view_type = fields.Char("Type de vue")
+    view_type = fields.Char("Type de vue (technique)")
+    nom_type_vue = fields.Char("Type de vue", compute="_compute_nom_type_vue", store=True)
     res_id = fields.Integer("Enregistrement")
     menu_id = fields.Many2one("ir.ui.menu", string="Menu", ondelete="set null")
     chemin_menu = fields.Char("Chemin du menu", compute="_compute_chemin_menu")
@@ -88,8 +103,19 @@ class IsFavoris(models.Model):
     context = fields.Text("Contexte")
     sort = fields.Text("Tri")
 
-    url = fields.Char("URL externe")
-    open_in_new_tab = fields.Boolean("Ouvrir dans un nouvel onglet", default=False)
+
+    @api.onchange("image")
+    def _onchange_image(self):
+        "Image seule cochée par défaut à l'ajout d'une image, décochée si l'image est retirée"
+        if not self.image:
+            self.image_seule = False
+        elif not self._origin.image:
+            self.image_seule = True
+
+    @api.depends("view_type")
+    def _compute_nom_type_vue(self):
+        for obj in self:
+            obj.nom_type_vue = NOMS_VUES.get(obj.view_type, obj.view_type or "")
 
     @api.depends("menu_id", "action_id")
     def _compute_chemin_menu(self):
@@ -246,8 +272,6 @@ class IsFavoris(models.Model):
     def get_ouverture(self):
         "Données pour ouvrir le favori côté client"
         self.ensure_one()
-        if self.url:
-            return {"url": self.url, "new_tab": self.open_in_new_tab}
         if self.action_id:
             view_type = self.view_type or (self.view_id.type if self.view_id else False)
             res = {

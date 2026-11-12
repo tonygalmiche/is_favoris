@@ -13,25 +13,24 @@
                     </div>
                     <group>
                         <group string="Affichage">
-                            <field name="color" widget="color_picker"/>
-                            <field name="icone"/>
+                            <field name="color" widget="color_picker" invisible="image"/>
+                            <field name="icone" invisible="image"/>
                             <field name="image_seule" invisible="not image"/>
                         </group>
                         <group string="Origine">
                             <field name="chemin_menu"/>
-                            <field name="view_type" readonly="1"/>
+                            <field name="view_type" invisible="1"/>
+                            <field name="nom_type_vue"/>
                             <field name="res_id" readonly="1" invisible="view_type != 'form'"/>
-                            <field name="url" placeholder="https://exemple.com"/>
-                            <field name="open_in_new_tab" invisible="not url"/>
                         </group>
                     </group>
-                    <group string="Mémorisé" invisible="url">
+                    <group string="Mémorisé">
                         <field name="description_filtre" readonly="1"/>
                         <field name="create_date" string="Créé le" readonly="1"/>
                         <field name="date_mise_a_jour" readonly="1"/>
-                        <field name="domain" readonly="1"/>
-                        <field name="context" readonly="1"/>
-                        <field name="sort" readonly="1"/>
+                        <field name="domain" readonly="1" groups="base.group_no_one"/>
+                        <field name="context" readonly="1" groups="base.group_no_one"/>
+                        <field name="sort" readonly="1" groups="base.group_no_one"/>
                     </group>
                 </sheet>
             </form>
@@ -50,7 +49,7 @@
             <list string="Favoris" create="false">
                 <field name="name"/>
                 <field name="chemin_menu"/>
-                <field name="view_type"/>
+                <field name="nom_type_vue"/>
                 <field name="ligne"/>
                 <field name="colonne"/>
                 <field name="user_id" optional="hide"/>
@@ -66,7 +65,7 @@
                 <field name="name"/>
                 <field name="menu_id"/>
                 <group expand="0" string="Regrouper par">
-                    <filter name="group_view_type" string="Type de vue" context="{'group_by': 'view_type'}"/>
+                    <filter name="group_view_type" string="Type de vue" context="{'group_by': 'nom_type_vue'}"/>
                 </group>
             </search>
         </field>

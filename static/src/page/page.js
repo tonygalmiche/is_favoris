@@ -165,9 +165,7 @@ export class IsFavorisPage extends Component {
 
     async ouvrir(favori) {
         const res = await this.orm.call("is.favoris", "get_ouverture", [[favori.id]]);
-        if (res.url) {
-            window.open(res.url, res.new_tab ? "_blank" : "_self");
-        } else if (res.action_id) {
+        if (res.action_id) {
             const options = { clearBreadcrumbs: true };
             if (res.view_type) {
                 options.viewType = res.view_type;
