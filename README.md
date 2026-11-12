@@ -12,7 +12,7 @@ Page d'accueil personnelle de raccourcis vers des vues Odoo, avec leurs filtres.
   - cases de taille fixe, cases vides possibles ; position mémorisée en ligne + case ;
   - ligne trop longue pour la fenêtre : elle se replie et décale les lignes suivantes ;
   - déplacement à la souris : case vide, insertion sur une case occupée, nouvelle ligne ;
-  - carte : couleur, icône (type de vue par défaut) ou image, mise en avant (bordure) ;
+  - carte : couleur, icône (type de vue par défaut) ou image (éventuellement seule, sur toute la case) ;
   - infobulle : nom et chemin complet du menu d'origine ;
   - modification (crayon) et suppression (corbeille) au survol ;
   - taille de toutes les cases : petites, moyennes, grandes (préférence par utilisateur).

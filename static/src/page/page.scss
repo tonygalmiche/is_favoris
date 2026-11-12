@@ -97,11 +97,6 @@ $is-favoris-couleurs: (
             opacity: 0.4;
         }
 
-        &.o_is_favoris_mis_en_avant {
-            border: 3px solid #f5b400;
-            box-shadow: 0 0 0 2px rgba(245, 180, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.12);
-        }
-
         @each $index, $couleur in $is-favoris-couleurs {
             &.o_is_favoris_couleur_#{$index} {
                 background: linear-gradient(to bottom, $couleur, rgba($couleur, 0.75));
@@ -146,10 +141,6 @@ $is-favoris-couleurs: (
             height: 100%;
             max-width: none;
             object-fit: cover;
-        }
-
-        &.o_is_favoris_mis_en_avant {
-            border-color: #f5b400;
         }
 
         .o_is_favoris_outils {

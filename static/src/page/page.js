@@ -139,9 +139,6 @@ export class IsFavorisPage extends Component {
         if (favori.image_seule) {
             classes.push("o_is_favoris_image_seule");
         }
-        if (favori.mise_en_avant) {
-            classes.push("o_is_favoris_mis_en_avant");
-        }
         if (this.state.dragId === favori.id) {
             classes.push("o_is_favoris_deplace");
         }

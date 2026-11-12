@@ -70,7 +70,6 @@ class IsFavoris(models.Model):
     image_seule = fields.Boolean(
         "Image seule", help="L'image occupe toute la case, sans le nom (visible dans l'infobulle)"
     )
-    mise_en_avant = fields.Boolean("Mise en avant", help="Bordure de couleur autour du favori")
 
     action_id = fields.Many2one("ir.actions.act_window", string="Action", ondelete="cascade")
     view_id = fields.Many2one("ir.ui.view", string="Vue", ondelete="set null")
@@ -215,7 +214,6 @@ class IsFavoris(models.Model):
                 "icone": f.icone,
                 "image": bool(f.image),
                 "image_seule": bool(f.image) and f.image_seule,
-                "mise_en_avant": f.mise_en_avant,
                 "view_type": f.view_type or (f.view_id.type if f.view_id else False),
                 "chemin_menu": f.chemin_menu,
                 "write_date": str(f.write_date),
