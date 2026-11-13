@@ -85,6 +85,29 @@ export function iconeChoisie(icone) {
 }
 
 /**
+ * Action sans id (renvoyée par un bouton) : action d'origine et clé qui l'identifie
+ * (modèle, domaine, nom), ou null si ce n'est pas une fenêtre sur un modèle.
+ */
+export function actionSansId(action) {
+    if (!action || typeof action.id === "number" || !action._originalAction) {
+        return null;
+    }
+    let origine;
+    try {
+        origine = JSON.parse(action._originalAction);
+    } catch {
+        return null;
+    }
+    if (origine?.type !== "ir.actions.act_window" || !origine.res_model) {
+        return null;
+    }
+    return {
+        data: action._originalAction,
+        cle: JSON.stringify([origine.res_model, origine.domain || [], origine.name || ""]),
+    };
+}
+
+/**
  * Liste des favoris de l'utilisateur, chargée une seule fois,
  * pour savoir si l'étoile de la page affichée est jaune.
  */
@@ -117,10 +140,11 @@ export const isFavorisService = {
                 loading = load().finally(() => (loading = null));
                 return loading;
             },
-            find(favoris, actionId, viewType, resId) {
+            /** actionId : action enregistrée ; sinon actionCle : action sans id (bouton) */
+            find(favoris, { actionId, actionCle }, viewType, resId) {
                 return favoris.filter(
                     (f) =>
-                        f.action_id === actionId &&
+                        (actionId ? f.action_id === actionId : !f.action_id && f.action_cle === actionCle) &&
                         f.view_type === viewType &&
                         (viewType !== "form" || f.res_id === resId)
                 );

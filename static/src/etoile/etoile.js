@@ -1,8 +1,9 @@
-import { Component, onWillStart } from "@odoo/owl";
+import { Component, onMounted, onWillStart, signal } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { useService } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
+import { actionSansId } from "../favoris_service";
 
 /**
  * Étoile à côté du titre de la page (avant la roue dentée) :
@@ -20,12 +21,38 @@ export class IsFavorisEtoile extends Component {
         this.favorisService = useService("is_favoris");
         // Owl 3 : état du service en proxy(), suivi automatiquement pendant le rendu
         this.favoris = this.favorisService.state;
+        this.actionService = useService("action");
+        this.menu = useService("menu");
+        // Action sans id (renvoyée par un bouton) : connue seulement quand la vue est
+        // affichée (la pile des actions est mise à jour après le montage de la vue)
+        this.actionSansId = signal(null);
+        const chercherAction = () => {
+            const controller = this.actionService.currentController;
+            // Seulement pour la vue de cette étoile : la vue recopie la config du contrôleur
+            // (env.config est un autre objet), mais garde ses fonctions, propres au contrôleur
+            const getDisplayName = this.env.config?.getDisplayName;
+            const memeVue = Boolean(getDisplayName) && controller?.config?.getDisplayName === getDisplayName;
+            if (!this.actionId && memeVue && !this.actionSansId()) {
+                const info = actionSansId(controller.action);
+                if (info) {
+                    this.actionSansId.set(info);
+                    this.favorisService.ensureLoaded();
+                }
+            }
+        };
+        onMounted(chercherAction);
+        useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", chercherAction);
         onWillStart(() => (this.visible ? this.favorisService.ensureLoaded() : null));
     }
 
     get actionId() {
         const actionId = this.env.config?.actionId;
         return typeof actionId === "number" ? actionId : false;
+    }
+
+    /** Action de la page : enregistrée (actionId) ou sans id (actionCle) */
+    get cible() {
+        return { actionId: this.actionId, actionCle: this.actionSansId()?.cle || false };
     }
 
     get viewType() {
@@ -38,7 +65,8 @@ export class IsFavorisEtoile extends Component {
     }
 
     get visible() {
-        if (this.env.inDialog || !this.actionId || !this.viewType || !this.env.searchModel) {
+        const cible = this.cible;
+        if (this.env.inDialog || !(cible.actionId || cible.actionCle) || !this.viewType || !this.env.searchModel) {
             return false;
         }
         return this.viewType !== "form" || Boolean(this.resId);
@@ -48,7 +76,7 @@ export class IsFavorisEtoile extends Component {
         if (!this.favoris.loaded) {
             return [];
         }
-        return this.favorisService.find(this.favoris.favoris, this.actionId, this.viewType, this.resId);
+        return this.favorisService.find(this.favoris.favoris, this.cible, this.viewType, this.resId);
     }
 
     /** Favori ouvert depuis la page des favoris (étiquette ⭐ active dans la recherche) */
@@ -78,6 +106,12 @@ export class IsFavorisEtoile extends Component {
             res_id: this.resId,
             largeur: window.innerWidth,
         };
+        const sansId = this.actionSansId();
+        if (!this.actionId && sansId) {
+            vals.action_data = sansId.data;
+            vals.action_cle = sansId.cle;
+            vals.menu_id = this.menu.getCurrentApp()?.id || false;
+        }
         if (this.viewType !== "form") {
             const irFilter = this.env.searchModel.getIrFilterValues({});
             vals.domain = irFilter.domain;

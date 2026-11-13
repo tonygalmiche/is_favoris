@@ -19,6 +19,7 @@ Une étoile est affichée à côté du titre de chaque page (liste, kanban, pivo
 - Dans ce menu, chaque favori affiche sa recherche mémorisée ; une coche ✓ indique celui qui correspond à la recherche affichée.
 - Si la page a été ouverte depuis un favori, le menu n'affiche que ce favori.
 - Pas d'étoile dans les fenêtres (dialogues), ni sur les pages sans titre (Discussion…).
+- Pages ouvertes par un bouton (action renvoyée par une méthode Python, sans id, ex. opérations d'un compte) : étoile aussi (20.0.1.0.1). Action d'origine mémorisée telle quelle, menu = application affichée, nom = titre de la page.
 
 ## Ce qui est mémorisé
 
@@ -118,6 +119,7 @@ Différences avec la version 18 :
 - droits : un seul `security/ir.access.csv` (droits et domaine) ; plus de droit de lecture sur `ir.ui.view` (vue lue en superutilisateur) ;
 - groupe « Utilisateur avec favoris » : technique, sans privilège ; champ `group_ids` des utilisateurs ;
 - favori en mémoire : `user_ids` au lieu de `user_id` ;
+- 20.0.1.0.1 : favori d'une action sans id (bouton) : `action._originalAction` du contrôleur courant, lu à `ACTION_MANAGER:UI-UPDATED` (pile des actions mise à jour après le montage de la vue) ; champs `action_data` (JSON de l'action) et `action_cle` (modèle, domaine, nom) pour l'étoile jaune ;
 - pas de script de migration : en 20, les favoris sont repris par le script de migration de la base (tables copiées).
 
 ## Installation

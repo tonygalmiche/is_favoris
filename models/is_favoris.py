@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import random
 
 from odoo import SUPERUSER_ID, api, fields, models
@@ -87,6 +88,9 @@ class IsFavoris(models.Model):
     )
 
     action_id = fields.Many2one("ir.actions.act_window", string="Action", ondelete="cascade")
+    # Action sans id (renvoyée par un bouton) : action d'origine en JSON, et clé pour la retrouver
+    action_data = fields.Text("Action d'origine")
+    action_cle = fields.Char("Clé de l'action", index=True)
     view_id = fields.Many2one("ir.ui.view", string="Vue", ondelete="set null")
     view_type = fields.Char("Type de vue (technique)")
     nom_type_vue = fields.Char("Type de vue", compute="_compute_nom_type_vue", store=True)
@@ -117,12 +121,25 @@ class IsFavoris(models.Model):
         for obj in self:
             obj.nom_type_vue = NOMS_VUES.get(obj.view_type, obj.view_type or "")
 
-    @api.depends("menu_id", "action_id")
+    @api.depends("menu_id", "action_id", "action_data")
     def _compute_chemin_menu(self):
         for obj in self:
             menu = obj.menu_id.sudo()
-            chemin = menu.complete_name if menu else (obj.action_id.sudo().name or "")
+            if obj.action_data:
+                # Action sans id : application d'origine, puis nom de l'action
+                nom = obj._action_origine().get("name") or ""
+                chemin = "/".join(filter(None, [menu.complete_name if menu else "", nom]))
+            else:
+                chemin = menu.complete_name if menu else (obj.action_id.sudo().name or "")
             obj.chemin_menu = (chemin or "").replace("/", " / ")
+
+    def _action_origine(self):
+        "Action sans id mémorisée (dict), {} si absente ou illisible"
+        try:
+            action = json.loads(self.action_data or "{}")
+        except ValueError:
+            return {}
+        return action if isinstance(action, dict) else {}
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -225,24 +242,54 @@ class IsFavoris(models.Model):
         return menu
 
     @api.model
+    def _action_sans_id(self, vals):
+        """Action sans id envoyée par l'étoile (renvoyée par un bouton) : dict de
+        l'action d'origine si c'est une fenêtre sur un modèle existant, sinon {}"""
+        try:
+            action = json.loads(vals.get("action_data") or "{}")
+        except ValueError:
+            return {}
+        if (
+            not isinstance(action, dict)
+            or action.get("type") != "ir.actions.act_window"
+            or action.get("res_model") not in self.env
+            or not vals.get("action_cle")
+        ):
+            return {}
+        return action
+
+    @api.model
     def creer_depuis_vue(self, vals):
-        "Crée un favori depuis l'étoile ; nom automatique (nom du menu ou de l'enregistrement)"
+        "Crée un favori depuis l'étoile ; nom automatique (nom du menu, de l'action ou de l'enregistrement)"
         action = self.env["ir.actions.act_window"].sudo().browse(vals.get("action_id")).exists()
-        if not action:
+        action_sans_id = {} if action else self._action_sans_id(vals)
+        if action:
+            menu = self._menu_action(action)
+            name = menu.name or action.name
+            res_model = action.res_model
+            valeurs_action = {"action_id": action.id, "menu_id": menu.id}
+        elif action_sans_id:
+            # Menu : application affichée au moment de l'ajout
+            menu = self.env["ir.ui.menu"].browse(vals.get("menu_id")).exists()
+            name = action_sans_id.get("name") or menu.name or action_sans_id["res_model"]
+            res_model = action_sans_id["res_model"]
+            valeurs_action = {
+                "action_data": json.dumps(action_sans_id),
+                "action_cle": vals["action_cle"],
+                "menu_id": menu.id,
+            }
+        else:
             return False
-        menu = self._menu_action(action)
-        name = menu.name or action.name
         res_id = vals.get("res_id")
-        if vals.get("view_type") == "form" and res_id and action.res_model:
-            record = self.env[action.res_model].browse(res_id).exists()
+        if vals.get("view_type") == "form" and res_id and res_model:
+            record = self.env[res_model].browse(res_id).exists()
             if record:
                 name = record.display_name
         ligne, colonne = self._position_fin(self.env.user, vals.get("largeur"))
         favori = self.create(dict(
             self._valeurs_vue(vals),
+            **valeurs_action,
             name=name,
-            action_id=action.id,
-            menu_id=menu.id,
             ligne=ligne,
             colonne=colonne,
         ))
@@ -263,6 +310,7 @@ class IsFavoris(models.Model):
             "id": f.id,
             "name": f.name,
             "action_id": f.action_id.id,
+            "action_cle": f.action_cle or False,
             "view_type": f.view_type,
             "res_id": f.res_id,
             "description_filtre": f.description_filtre or "",
@@ -306,7 +354,8 @@ class IsFavoris(models.Model):
         self.ensure_one()
         # Vue lue en superutilisateur : pas de droit de lecture sur ir.ui.view pour les utilisateurs
         view = self.sudo().view_id
-        if self.action_id:
+        action_sans_id = {} if self.action_id else self._action_origine()
+        if self.action_id or action_sans_id:
             view_type = self.view_type or (view.type if view else False)
             res = {
                 "action_id": self.action_id.id,
@@ -314,6 +363,8 @@ class IsFavoris(models.Model):
                 "res_id": self.res_id if view_type == "form" else False,
                 "menu_id": self.menu_id.id,
             }
+            if action_sans_id:
+                res["action"] = action_sans_id
             if self.domain or self.context or self.sort:
                 res["filtre"] = {
                     "id": self.id,
