@@ -8,16 +8,17 @@
     }
 }
 
+// Couleur sur l'icône : en 16, la couleur des liens d'Odoo l'emporte sur celle du bouton
 .o_is_favoris_etoile {
-    color: $gray-500;
     font-size: 1.1rem;
     line-height: 1;
 
-    &:hover {
-        color: #f5b400;
+    i {
+        color: $gray-500;
     }
 
-    &.o_is_favoris_etoile_jaune {
+    &:hover i,
+    &.o_is_favoris_etoile_jaune i {
         color: #f5b400;
     }
 }
