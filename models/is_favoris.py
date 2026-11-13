@@ -2,7 +2,7 @@
 
 import random
 
-from odoo import api, fields, models
+from odoo import SUPERUSER_ID, api, fields, models
 from odoo.tools.misc import format_date
 
 # Taille des cases en pixels, écart entre cases et marge de la page (mêmes valeurs que page.js)
@@ -126,19 +126,37 @@ class IsFavoris(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        images = []
         for vals in vals_list:
             if "color" not in vals:
                 vals["color"] = random.randint(1, 11)
+            images.append(vals.pop("image", False))
         favoris = super().create(vals_list)
+        for favori, image in zip(favoris, images):
+            if image:
+                favori._ecrire_image(image)
         favoris.mapped("user_id")._is_favoris_maj_groupe()
         return favoris
 
     def write(self, vals):
         users = self.mapped("user_id")
+        if "image" in vals:
+            vals = dict(vals)
+            image = vals.pop("image")
+            self._ecrire_image(image)
         res = super().write(vals)
         if "user_id" in vals:
             (users | self.mapped("user_id"))._is_favoris_maj_groupe()
         return res
+
+    def _ecrire_image(self, image):
+        """Image enregistrée en superutilisateur : pour un utilisateur sans droit
+        d'écriture sur les vues, Odoo enregistre un SVG en text/plain (protection
+        contre le JavaScript dans les SVG) et le navigateur ne l'affiche pas.
+        Image visible seulement par le propriétaire du favori (règle d'accès)."""
+        self.check_access_rights("write")
+        self.check_access_rule("write")
+        super(IsFavoris, self.with_user(SUPERUSER_ID)).write({"image": image})
 
     def unlink(self):
         users = self.mapped("user_id")
