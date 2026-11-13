@@ -119,6 +119,12 @@ Les anciens favoris n'ont pas de recherche mémorisée (l'ancienne version ne l'
 
 is_bureau n'est plus utilisé : à désinstaller après la mise à jour.
 
+## Installation
+
+```bash
+git clone -b 18.0 --single-branch https://github.com/tonygalmiche/is_favoris.git
+```
+
 ## Auteur
 
 InfoSaône / Tony Galmiche
