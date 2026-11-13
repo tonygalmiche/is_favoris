@@ -85,11 +85,16 @@ export function iconeChoisie(icone) {
 }
 
 /**
- * Action sans id (renvoyée par un bouton) : action d'origine et clé qui l'identifie
- * (modèle, domaine, nom), ou null si ce n'est pas une fenêtre sur un modèle.
+ * Action à mémoriser telle quelle (renvoyée par un bouton) : action d'origine et clé
+ * qui l'identifie (modèle, domaine, nom), ou null pour une action enregistrée
+ * ouverte telle quelle (menu), mémorisée par son id.
+ * - Sans id : action construite en Python.
+ * - Avec un id mais modifiée en Python (ex. bouton Factures de la fiche client :
+ *   action standard avec le domaine du client) : domaine en liste ou contexte en
+ *   dict ; chargée depuis la base, l'action a un domaine et un contexte en texte.
  */
 export function actionSansId(action) {
-    if (!action || typeof action.id === "number" || !action._originalAction) {
+    if (!action || !action._originalAction) {
         return null;
     }
     let origine;
@@ -99,6 +104,13 @@ export function actionSansId(action) {
         return null;
     }
     if (origine?.type !== "ir.actions.act_window" || !origine.res_model) {
+        return null;
+    }
+    const modifiee =
+        typeof origine.id !== "number" ||
+        Array.isArray(origine.domain) ||
+        Boolean(origine.context && typeof origine.context === "object");
+    if (!modifiee) {
         return null;
     }
     return {

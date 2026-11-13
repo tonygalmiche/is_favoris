@@ -272,6 +272,10 @@ class IsFavoris(models.Model):
             # Menu : application affichée au moment de l'ajout
             menu = self.env["ir.ui.menu"].browse(vals.get("menu_id")).exists()
             name = action_sans_id.get("name") or menu.name or action_sans_id["res_model"]
+            if action_sans_id.get("id") and vals.get("titre_parent"):
+                # Action standard modifiée par un bouton : nom de la page d'origine
+                # (ex. « Factures clients - VILLE DE SAINT-PIERRE »)
+                name = "%s - %s" % (name, vals["titre_parent"])
             res_model = action_sans_id["res_model"]
             valeurs_action = {
                 "action_data": json.dumps(action_sans_id),

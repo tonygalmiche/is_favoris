@@ -23,8 +23,8 @@ export class IsFavorisEtoile extends Component {
         this.favoris = this.favorisService.state;
         this.actionService = useService("action");
         this.menu = useService("menu");
-        // Action sans id (renvoyée par un bouton) : connue seulement quand la vue est
-        // affichée (la pile des actions est mise à jour après le montage de la vue)
+        // Action renvoyée par un bouton (sans id, ou modifiée en Python) : connue seulement
+        // quand la vue est affichée (pile des actions mise à jour après le montage de la vue)
         this.actionSansId = signal(null);
         const chercherAction = () => {
             const controller = this.actionService.currentController;
@@ -32,7 +32,7 @@ export class IsFavorisEtoile extends Component {
             // (env.config est un autre objet), mais garde ses fonctions, propres au contrôleur
             const getDisplayName = this.env.config?.getDisplayName;
             const memeVue = Boolean(getDisplayName) && controller?.config?.getDisplayName === getDisplayName;
-            if (!this.actionId && memeVue && !this.actionSansId()) {
+            if (memeVue && !this.actionSansId()) {
                 const info = actionSansId(controller.action);
                 if (info) {
                     this.actionSansId.set(info);
@@ -50,9 +50,10 @@ export class IsFavorisEtoile extends Component {
         return typeof actionId === "number" ? actionId : false;
     }
 
-    /** Action de la page : enregistrée (actionId) ou sans id (actionCle) */
+    /** Action de la page : renvoyée par un bouton (actionCle), sinon enregistrée (actionId) */
     get cible() {
-        return { actionId: this.actionId, actionCle: this.actionSansId()?.cle || false };
+        const cle = this.actionSansId()?.cle;
+        return cle ? { actionId: false, actionCle: cle } : { actionId: this.actionId, actionCle: false };
     }
 
     get viewType() {
@@ -100,17 +101,20 @@ export class IsFavorisEtoile extends Component {
 
     /** Photo de la vue affichée, comme un favori standard d'Odoo */
     valeursVue() {
+        const sansId = this.actionSansId();
         const vals = {
-            action_id: this.actionId,
+            action_id: sansId ? false : this.actionId,
             view_type: this.viewType,
             res_id: this.resId,
             largeur: window.innerWidth,
         };
-        const sansId = this.actionSansId();
-        if (!this.actionId && sansId) {
+        if (sansId) {
+            const breadcrumbs = this.env.config?.breadcrumbs || [];
             vals.action_data = sansId.data;
             vals.action_cle = sansId.cle;
             vals.menu_id = this.menu.getCurrentApp()?.id || false;
+            // Page précédente du fil d'Ariane (ex. le client), pour le nom du favori
+            vals.titre_parent = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2]?.name || "" : "";
         }
         if (this.viewType !== "form") {
             const irFilter = this.env.searchModel.getIrFilterValues({});

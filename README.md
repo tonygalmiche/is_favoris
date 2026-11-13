@@ -20,6 +20,7 @@ Une étoile est affichée à côté du titre de chaque page (liste, kanban, pivo
 - Si la page a été ouverte depuis un favori, le menu n'affiche que ce favori.
 - Pas d'étoile dans les fenêtres (dialogues), ni sur les pages sans titre (Discussion…).
 - Pages ouvertes par un bouton (action renvoyée par une méthode Python, sans id, ex. opérations d'un compte) : étoile aussi (20.0.1.0.1). Action d'origine mémorisée telle quelle, menu = application affichée, nom = titre de la page.
+- Idem pour une action enregistrée modifiée par un bouton (ex. bouton Factures de la fiche client : action « Factures clients » avec le domaine du client) ; nom = titre de la page - page précédente (« Factures clients - VILLE DE SAINT-PIERRE ») (20.0.1.0.2).
 
 ## Ce qui est mémorisé
 
