@@ -2,7 +2,7 @@
 
 {
     "name": "InfoSaône - Gestion des favoris pour Odoo 18",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "author": "InfoSaône / Tony Galmiche",
     "category": "InfoSaône",
     "description": """

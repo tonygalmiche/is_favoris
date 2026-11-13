@@ -77,8 +77,9 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_is_favoris_root" name="Favoris" sequence="0"
+    <menuitem id="menu_is_favoris_root" name="Favoris" sequence="-1"
               web_icon="is_favoris,static/description/icon.png"
+              groups="is_favoris.group_has_favorites"
               action="action_is_favoris_page"/>
 
 </odoo>

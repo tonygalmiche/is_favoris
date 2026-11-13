@@ -45,14 +45,19 @@ export function iconeVue(viewType) {
  * pour savoir si l'étoile de la page affichée est jaune.
  */
 export const isFavorisService = {
-    dependencies: ["orm"],
-    start(env, { orm }) {
+    dependencies: ["orm", "menu"],
+    start(env, { orm, menu }) {
         const state = reactive({ loaded: false, favoris: [] });
         let loading = null;
 
         async function load() {
+            const avant = state.loaded ? state.favoris.length : null;
             state.favoris = await orm.call("is.favoris", "get_etoile_data", []);
             state.loaded = true;
+            // Premier favori ajouté ou dernier retiré : le menu Favoris apparaît ou disparaît
+            if (avant !== null && !avant !== !state.favoris.length) {
+                await menu.reload();
+            }
         }
 
         return {

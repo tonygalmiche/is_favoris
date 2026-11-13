@@ -5,7 +5,7 @@
   rangé par lignes de NB_COLONNES favoris.
 - Type de vue : repris de la vue mémorisée.
 - Menu : premier menu qui ouvre l'action.
-- Page des favoris en action d'accueil des utilisateurs internes sans action d'accueil.
+- Groupe « Utilisateur avec favoris » et action d'accueil : script 18.0.1.0.1.
 """
 
 import logging
@@ -64,5 +64,4 @@ def migrate(cr, version):
         if vals:
             favori.write(vals)
 
-    env["res.users"]._is_favoris_set_action_accueil()
     _logger.info("is_favoris : %s favoris repris", sum(rangs.values()))

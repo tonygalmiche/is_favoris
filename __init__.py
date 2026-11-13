@@ -4,5 +4,5 @@ from . import models
 
 
 def post_init_hook(env):
-    "Page des favoris en action d'accueil des utilisateurs internes qui n'en ont pas"
-    env["res.users"]._is_favoris_set_action_accueil()
+    "Groupe et action d'accueil des utilisateurs qui ont déjà des favoris (réinstallation)"
+    env["is.favoris"].search([]).mapped("user_id")._is_favoris_maj_groupe()

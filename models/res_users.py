@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import fields, models
 
 
 class ResUsers(models.Model):
@@ -12,20 +12,26 @@ class ResUsers(models.Model):
         default="moyenne",
     )
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        users = super().create(vals_list)
-        if users:
-            users._is_favoris_set_action_accueil()
-        return users
-
-    @api.model
-    def _is_favoris_set_action_accueil(self):
-        "Met la page des favoris en action d'accueil des utilisateurs internes sans action d'accueil"
+    def _is_favoris_maj_groupe(self):
+        """Selon que l'utilisateur a des favoris ou non :
+        - groupe « Utilisateur avec favoris » (menu Favoris visible) ajouté ou retiré ;
+        - page des favoris en action d'accueil si elle est vide, retirée s'il n'a plus de favori.
+        """
+        groupe = self.env.ref("is_favoris.group_has_favorites", raise_if_not_found=False)
         action = self.env.ref("is_favoris.action_is_favoris_page", raise_if_not_found=False)
-        if not action:
+        if not groupe:
             return
-        users = self or self.with_context(active_test=False).search([])
-        users = users.sudo().filtered(lambda u: not u.share and not u.action_id)
-        if users:
-            users.write({"action_id": action.id})
+        Favoris = self.env["is.favoris"].sudo()
+        for user in self.sudo():
+            a_des_favoris = bool(Favoris.search_count([("user_id", "=", user.id)]))
+            vals = {}
+            if a_des_favoris and groupe not in user.groups_id:
+                vals["groups_id"] = [(4, groupe.id)]
+                if action and not user.share and not user.action_id:
+                    vals["action_id"] = action.id
+            elif not a_des_favoris and groupe in user.groups_id:
+                vals["groups_id"] = [(3, groupe.id)]
+                if action and user.action_id == action:
+                    vals["action_id"] = False
+            if vals:
+                user.write(vals)
