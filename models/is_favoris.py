@@ -129,7 +129,22 @@ class IsFavoris(models.Model):
         for vals in vals_list:
             if "color" not in vals:
                 vals["color"] = random.randint(1, 11)
-        return super().create(vals_list)
+        favoris = super().create(vals_list)
+        favoris.mapped("user_id")._is_favoris_maj_groupe()
+        return favoris
+
+    def write(self, vals):
+        users = self.mapped("user_id")
+        res = super().write(vals)
+        if "user_id" in vals:
+            (users | self.mapped("user_id"))._is_favoris_maj_groupe()
+        return res
+
+    def unlink(self):
+        users = self.mapped("user_id")
+        res = super().unlink()
+        users._is_favoris_maj_groupe()
+        return res
 
     # ------------------------------------------------------------------
     # Position

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Utilisateurs qui ont au moins un favori : seuls à voir le menu Favoris -->
+    <record id="group_has_favorites" model="res.groups">
+        <field name="name">Utilisateur avec favoris</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
     <data noupdate="1">
         <record id="is_favoris_user_rule" model="ir.rule">
             <field name="name">Favoris personnels</field>

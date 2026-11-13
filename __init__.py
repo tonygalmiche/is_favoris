@@ -6,6 +6,6 @@ from . import models
 
 
 def post_init_hook(cr, registry):
-    "Page des favoris en action d'accueil des utilisateurs internes qui n'en ont pas"
+    "Groupe et action d'accueil des utilisateurs qui ont déjà des favoris (réinstallation)"
     env = api.Environment(cr, SUPERUSER_ID, {})
-    env["res.users"]._is_favoris_set_action_accueil()
+    env["is.favoris"].search([]).mapped("user_id")._is_favoris_maj_groupe()

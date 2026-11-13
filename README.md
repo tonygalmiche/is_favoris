@@ -45,7 +45,8 @@ Aucun favori standard d'Odoo (`ir.filters`) n'est créé : le menu ⭐ de la rec
 ## Page des favoris
 
 - Application « Favoris », en premier dans la liste des applications, sans sous-menu.
-- Action d'accueil des utilisateurs internes : la page s'ouvre à la connexion.
+- Visible seulement pour les utilisateurs qui ont au moins un favori : elle apparaît au premier favori et disparaît avec le dernier, sans rafraîchir le navigateur.
+- Action d'accueil : la page s'ouvre à la connexion à partir du premier favori (si l'utilisateur n'a pas déjà une action d'accueil) ; retirée avec le dernier favori.
 - Boutons ▦ / ☰ en haut à droite : page des favoris ou liste des favoris.
 
 ### Grille
@@ -105,7 +106,7 @@ Aucun favori standard d'Odoo (`ir.filters`) n'est créé : le menu ⭐ de la rec
 - Retrait de l'étiquette ⭐ : patch de `SearchModel.deleteFavorite()`, sans suppression d'`ir.filters`.
 - Page : action client `is_favoris.page` (`page/`).
 - Préférence de taille : `res.users.is_favoris_taille`.
-- Action d'accueil : remplie à l'installation et à la création d'un utilisateur interne, seulement si elle est vide.
+- Menu Favoris réservé au groupe caché `is_favoris.group_has_favorites` (« Utilisateur avec favoris »), ajouté ou retiré à la création, la suppression ou le changement d'utilisateur d'un favori (`res.users._is_favoris_maj_groupe()`), avec l'action d'accueil ; menus rechargés côté client (`menu.reload()`) quand le nombre de favoris passe de 0 à 1 ou de 1 à 0.
 
 ## Différences avec la version 18
 

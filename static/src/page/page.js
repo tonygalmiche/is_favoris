@@ -45,7 +45,7 @@ export class IsFavorisPage extends Component {
             { key: "moyenne", label: "Moyennes" },
             { key: "grande", label: "Grandes" },
         ];
-        onWillStart(() => this.charger());
+        onWillStart(() => Promise.all([this.charger(), this.favorisService.ensureLoaded()]));
     }
 
     async charger() {
