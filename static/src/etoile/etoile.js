@@ -3,28 +3,26 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { useService } from "@web/core/utils/hooks";
+import { useBus, useService } from "@web/core/utils/hooks";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 
 /**
- * Étoile à côté du titre de la page (avant la roue dentée) :
+ * Étoile à côté du titre de la page (dernier élément du fil d'Ariane) :
  * - grise : un clic ajoute la page aux favoris ;
  * - jaune : la page (menu + type de vue, + enregistrement sur un formulaire)
  *   a déjà un favori ; un clic ouvre un petit menu.
  */
 export class IsFavorisEtoile extends Component {
-    static template = "is_favoris.Etoile";
-    static components = { Dropdown, DropdownItem };
-    static props = {};
-
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
         this.favorisService = useService("is_favoris");
         this.favoris = useState(this.favorisService.state);
-        this.formModel = this.env.isFavorisFormModel
-            ? useState(this.env.isFavorisFormModel)
-            : null;
+        // Odoo 16 : le modèle du formulaire n'est pas réactif, il prévient par son bus
+        this.formModel = this.env.isFavorisFormModel || null;
+        if (this.formModel) {
+            useBus(this.formModel, "update", () => this.render());
+        }
         onWillStart(() => (this.visible ? this.favorisService.ensureLoaded() : null));
     }
 
@@ -133,4 +131,9 @@ export class IsFavorisEtoile extends Component {
     }
 }
 
+IsFavorisEtoile.template = "is_favoris.Etoile";
+IsFavorisEtoile.components = { Dropdown, DropdownItem };
+IsFavorisEtoile.props = {};
+
+// FormControlPanel hérite de ControlPanel sans définir ses propres composants
 ControlPanel.components = { ...ControlPanel.components, IsFavorisEtoile };

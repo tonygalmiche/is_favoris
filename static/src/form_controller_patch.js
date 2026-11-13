@@ -8,9 +8,9 @@ import { FormController } from "@web/views/form/form_controller";
  * Donne à l'étoile (dans le panneau de contrôle) accès au modèle du formulaire,
  * pour connaître l'enregistrement affiché (navigation suivant / précédent comprise).
  */
-patch(FormController.prototype, {
+patch(FormController.prototype, "is_favoris", {
     setup() {
-        super.setup(...arguments);
+        this._super(...arguments);
         useSubEnv({ isFavorisFormModel: this.model });
     },
 });

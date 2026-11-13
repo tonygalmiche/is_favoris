@@ -1,10 +1,10 @@
-# InfoSaône - Gestion des favoris pour Odoo 18
+# InfoSaône - Gestion des favoris pour Odoo 16
 
 Page d'accueil personnelle de favoris : des raccourcis vers des vues Odoo, avec leur recherche (filtres, regroupements, tri), disposés librement sur une grille.
 
 ## Ajouter une page aux favoris : l'étoile
 
-Une étoile est affichée à côté du titre de chaque page (liste, kanban, pivot, graphique, calendrier, formulaire…), juste avant la roue dentée ⚙.
+Une étoile est affichée à côté du titre de chaque page (liste, kanban, pivot, graphique, calendrier, formulaire…), à droite du dernier élément du fil d'Ariane.
 
 - **Étoile grise** : la page n'a pas encore de favori. Un clic l'ajoute directement, sans nom à saisir :
   - nom automatique : nom du menu d'origine ;
@@ -100,24 +100,23 @@ Aucun favori standard d'Odoo (`ir.filters`) n'est créé : le menu ⭐ de la rec
 - Modèle `is.favoris` : domaine, contexte et tri stockés au format d'un `ir.filters`, sans en créer.
 - Capture : `searchModel.getIrFilterValues()`, la même fonction que les favoris standard ; texte de la recherche à partir des facettes affichées.
 - Ouverture : action d'origine avec la clé de contexte `is_favoris_filtre` ; patch du `SearchModel` qui ajoute le favori comme favori par défaut, en mémoire seulement.
-- Menu d'origine : `menu.setCurrentMenu()` à l'ouverture de l'action.
-- Étoile : composant ajouté au `ControlPanel` (`etoile/`) ; patch du `FormController` pour suivre l'enregistrement affiché ; service `is_favoris` qui charge une fois la liste des favoris de l'utilisateur.
+- Menu d'origine : `menu.setCurrentMenu()` après l'ouverture de l'action.
+- Étoile : composant ajouté au `ControlPanel` (`etoile/`), dans les templates `web.Breadcrumbs` et `web.Breadcrumbs.Small` ; patch du `FormController` pour suivre l'enregistrement affiché (bus `update` du modèle) ; service `is_favoris` qui charge une fois la liste des favoris de l'utilisateur.
+- Retrait de l'étiquette ⭐ : patch de `SearchModel.deleteFavorite()`, sans suppression d'`ir.filters`.
 - Page : action client `is_favoris.page` (`page/`).
 - Préférence de taille : `res.users.is_favoris_taille`.
-- Action d'accueil : remplie à l'installation, à la migration et à la création d'un utilisateur interne, seulement si elle est vide.
+- Action d'accueil : remplie à l'installation et à la création d'un utilisateur interne, seulement si elle est vide.
 
-## Migration depuis la version 0.1 (vue Bureau, module is_bureau)
+## Différences avec la version 18
 
-Script `migrations/18.0.1.0.0/post-migrate.py`, lancé par le `-u is_favoris` :
+- Étoile dans le fil d'Ariane (pas de roue dentée ⚙ en 16).
+- Pas de script de migration (pas d'ancienne version en 16).
 
-- favoris repris avec leur nom, couleur et image ;
-- positions : ordre d'origine sur le bureau, rangé par lignes de 8 ;
-- type de vue et menu d'origine retrouvés ;
-- action d'accueil des utilisateurs internes qui n'en ont pas.
+## Installation
 
-Les anciens favoris n'ont pas de recherche mémorisée (l'ancienne version ne l'enregistrait pas) : ils s'ouvrent avec la recherche par défaut du menu ; « Mettre à jour » dans le menu de l'étoile permet d'en ajouter une.
-
-is_bureau n'est plus utilisé : à désinstaller après la mise à jour.
+```bash
+git clone -b 16.0 --single-branch https://github.com/tonygalmiche/is_favoris.git
+```
 
 ## Auteur
 

@@ -23,9 +23,6 @@ import { ECART, TAILLES, iconeVue, nomVue } from "../favoris_service";
  *   jusqu'au premier trou).
  */
 export class IsFavorisPage extends Component {
-    static template = "is_favoris.Page";
-    static props = ["*"];
-
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
@@ -176,11 +173,12 @@ export class IsFavorisPage extends Component {
             if (res.filtre) {
                 options.additionalContext = { is_favoris_filtre: res.filtre };
             }
-            // Affiche l'application et les menus d'origine (et non plus « Favoris »)
-            if (res.menu_id && this.menu.getMenu(res.menu_id)) {
-                options.onActionReady = () => this.menu.setCurrentMenu(res.menu_id);
-            }
             await this.action.doAction(res.action_id, options);
+            // Affiche l'application et les menus d'origine (et non plus « Favoris »),
+            // comme le service des menus d'Odoo 16 après doAction
+            if (res.menu_id && this.menu.getMenu(res.menu_id)) {
+                this.menu.setCurrentMenu(res.menu_id);
+            }
         } else if (res.action) {
             await this.action.doAction(res.action, { clearBreadcrumbs: true });
         }
@@ -285,5 +283,8 @@ export class IsFavorisPage extends Component {
         }
     }
 }
+
+IsFavorisPage.template = "is_favoris.Page";
+IsFavorisPage.props = ["*"];
 
 registry.category("actions").add("is_favoris.page", IsFavorisPage);

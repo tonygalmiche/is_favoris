@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="is_favoris.Page">
+    <t t-name="is_favoris.Page" owl="1">
         <div class="o_action o_is_favoris_page" t-att-style="style">
             <div class="o_is_favoris_barre">
                 <h4 class="m-0">Favoris</h4>
@@ -16,10 +16,10 @@
                         </t>
                     </div>
                     <nav class="o_cp_switch_buttons btn-group ms-3">
-                        <button type="button" class="btn btn-secondary active" data-tooltip="Page des favoris">
+                        <button type="button" class="btn btn-light active" data-tooltip="Page des favoris">
                             <i class="fa fa-th-large"/>
                         </button>
-                        <button type="button" class="btn btn-secondary" t-on-click="ouvrirListe"
+                        <button type="button" class="btn btn-light" t-on-click="ouvrirListe"
                                 data-tooltip="Liste">
                             <i class="oi oi-view-list"/>
                         </button>
@@ -72,7 +72,7 @@
         </div>
     </t>
 
-    <t t-name="is_favoris.Infobulle">
+    <t t-name="is_favoris.Infobulle" owl="1">
         <div class="fw-bold" t-esc="name"/>
         <div t-if="chemin" class="small opacity-75" t-esc="chemin"/>
         <div t-if="vue" class="small opacity-75">Vue : <t t-esc="vue"/></div>

@@ -13,15 +13,15 @@
                     </div>
                     <group>
                         <group string="Affichage">
-                            <field name="color" widget="color_picker" invisible="image"/>
-                            <field name="icone" invisible="image"/>
-                            <field name="image_seule" invisible="not image"/>
+                            <field name="color" widget="color_picker" attrs="{'invisible': [('image', '!=', False)]}"/>
+                            <field name="icone" attrs="{'invisible': [('image', '!=', False)]}"/>
+                            <field name="image_seule" attrs="{'invisible': [('image', '=', False)]}"/>
                         </group>
                         <group string="Origine">
                             <field name="chemin_menu"/>
                             <field name="view_type" invisible="1"/>
                             <field name="nom_type_vue"/>
-                            <field name="res_id" readonly="1" invisible="view_type != 'form'"/>
+                            <field name="res_id" readonly="1" attrs="{'invisible': [('view_type', '!=', 'form')]}"/>
                         </group>
                     </group>
                     <group string="Mémorisé">
@@ -46,14 +46,14 @@
         <field name="name">is.favoris.list</field>
         <field name="model">is.favoris</field>
         <field name="arch" type="xml">
-            <list string="Favoris" create="false">
+            <tree string="Favoris" create="false">
                 <field name="name"/>
                 <field name="chemin_menu"/>
                 <field name="nom_type_vue"/>
                 <field name="ligne"/>
                 <field name="colonne"/>
                 <field name="user_id" optional="hide"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -74,10 +74,10 @@
     <record id="action_is_favoris_liste" model="ir.actions.act_window">
         <field name="name">Liste des favoris</field>
         <field name="res_model">is.favoris</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="menu_is_favoris_root" name="Favoris" sequence="0"
+    <menuitem id="menu_is_favoris_root" name="Favoris" sequence="-1"
               web_icon="is_favoris,static/description/icon.png"
               action="action_is_favoris_page"/>
 
