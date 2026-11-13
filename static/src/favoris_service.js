@@ -41,6 +41,41 @@ export function iconeVue(viewType) {
 }
 
 /**
+ * Action à mémoriser telle quelle (renvoyée par un bouton) : action d'origine et clé
+ * qui l'identifie (modèle, domaine, nom), ou null pour une action enregistrée
+ * ouverte telle quelle (menu), mémorisée par son id.
+ * - Sans id : action construite en Python.
+ * - Avec un id mais modifiée en Python (ex. bouton Factures de la fiche client :
+ *   action standard avec le domaine du client) : domaine en liste ou contexte en
+ *   dict ; chargée depuis la base, l'action a un domaine et un contexte en texte.
+ */
+export function actionSansId(action) {
+    if (!action || !action._originalAction) {
+        return null;
+    }
+    let origine;
+    try {
+        origine = JSON.parse(action._originalAction);
+    } catch {
+        return null;
+    }
+    if (!origine || origine.type !== "ir.actions.act_window" || !origine.res_model) {
+        return null;
+    }
+    const modifiee =
+        typeof origine.id !== "number" ||
+        Array.isArray(origine.domain) ||
+        Boolean(origine.context && typeof origine.context === "object");
+    if (!modifiee) {
+        return null;
+    }
+    return {
+        data: action._originalAction,
+        cle: JSON.stringify([origine.res_model, origine.domain || [], origine.name || ""]),
+    };
+}
+
+/**
  * Liste des favoris de l'utilisateur, chargée une seule fois,
  * pour savoir si l'étoile de la page affichée est jaune.
  */
@@ -72,10 +107,11 @@ export const isFavorisService = {
                 loading = load().finally(() => (loading = null));
                 return loading;
             },
-            find(favoris, actionId, viewType, resId) {
+            /** actionId : action enregistrée ; sinon actionCle : action sans id (bouton) */
+            find(favoris, { actionId, actionCle }, viewType, resId) {
                 return favoris.filter(
                     (f) =>
-                        f.action_id === actionId &&
+                        (actionId ? f.action_id === actionId : !f.action_id && f.action_cle === actionCle) &&
                         f.view_type === viewType &&
                         (viewType !== "form" || f.res_id === resId)
                 );

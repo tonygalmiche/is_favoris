@@ -162,7 +162,8 @@ export class IsFavorisPage extends Component {
 
     async ouvrir(favori) {
         const res = await this.orm.call("is.favoris", "get_ouverture", [[favori.id]]);
-        if (res.action_id) {
+        if (res.action_id || res.view_type) {
+            // Action enregistrée (action_id) ou action sans id mémorisée (res.action)
             const options = { clearBreadcrumbs: true };
             if (res.view_type) {
                 options.viewType = res.view_type;
@@ -173,7 +174,7 @@ export class IsFavorisPage extends Component {
             if (res.filtre) {
                 options.additionalContext = { is_favoris_filtre: res.filtre };
             }
-            await this.action.doAction(res.action_id, options);
+            await this.action.doAction(res.action_id || res.action, options);
             // Affiche l'application et les menus d'origine (et non plus « Favoris »),
             // comme le service des menus d'Odoo 16 après doAction
             if (res.menu_id && this.menu.getMenu(res.menu_id)) {
