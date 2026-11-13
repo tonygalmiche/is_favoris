@@ -1,18 +1,10 @@
-/** @odoo-module **/
-
-import {
-    Component,
-    onMounted,
-    onWillStart,
-    useExternalListener,
-    useRef,
-    useState,
-} from "@odoo/owl";
+import { Component, onMounted, onWillStart, proxy, signal, useListener, useProps } from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { standardActionServiceProps } from "@web/webclient/actions/action_plugin";
 import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
-import { ECART, TAILLES, iconeVue, nomVue } from "../favoris_service";
+import { ECART, TAILLES, iconeChoisie, iconeVue, nomVue } from "../favoris_service";
 
 /**
  * Page des favoris : grille de cases de taille fixe.
@@ -24,7 +16,10 @@ import { ECART, TAILLES, iconeVue, nomVue } from "../favoris_service";
  */
 export class IsFavorisPage extends Component {
     static template = "is_favoris.Page";
-    static props = ["*"];
+    // Owl 3 : props déclarées par useProps (static props interdit)
+    props = useProps({ ...standardActionServiceProps });
+    // Owl 3 : signal.ref() au lieu de useRef(), l'élément s'obtient par this.grilleRef()
+    grilleRef = signal.ref();
 
     setup() {
         this.orm = useService("orm");
@@ -32,7 +27,7 @@ export class IsFavorisPage extends Component {
         this.dialog = useService("dialog");
         this.menu = useService("menu");
         this.favorisService = useService("is_favoris");
-        this.state = useState({
+        this.state = proxy({
             taille: "moyenne",
             favoris: [],
             dragId: null,
@@ -40,9 +35,8 @@ export class IsFavorisPage extends Component {
             largeur: window.innerWidth,
             hauteur: window.innerHeight,
         });
-        this.grilleRef = useRef("grille");
         onMounted(() => this.mesurer());
-        useExternalListener(window, "resize", () => this.mesurer());
+        useListener(window, "resize", () => this.mesurer());
         this.tailles = [
             { key: "petite", label: "Petites" },
             { key: "moyenne", label: "Moyennes" },
@@ -116,7 +110,7 @@ export class IsFavorisPage extends Component {
     }
 
     mesurer() {
-        const el = this.grilleRef.el;
+        const el = this.grilleRef();
         if (el) {
             const style = getComputedStyle(el);
             this.state.largeur =
@@ -126,8 +120,9 @@ export class IsFavorisPage extends Component {
         }
     }
 
+    /** Nom de l'icône Material (data-icon) : icône choisie, sinon celle du type de vue */
     icone(favori) {
-        return favori.icone || iconeVue(favori.view_type);
+        return iconeChoisie(favori.icone) || iconeVue(favori.view_type);
     }
 
     imageUrl(favori) {

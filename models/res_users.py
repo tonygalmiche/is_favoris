@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models
+from odoo.fields import Command
 
 
 class ResUsers(models.Model):
@@ -25,12 +26,12 @@ class ResUsers(models.Model):
         for user in self.sudo():
             a_des_favoris = bool(Favoris.search_count([("user_id", "=", user.id)]))
             vals = {}
-            if a_des_favoris and groupe not in user.groups_id:
-                vals["groups_id"] = [(4, groupe.id)]
+            if a_des_favoris and groupe not in user.group_ids:
+                vals["group_ids"] = [Command.link(groupe.id)]
                 if action and not user.share and not user.action_id:
                     vals["action_id"] = action.id
-            elif not a_des_favoris and groupe in user.groups_id:
-                vals["groups_id"] = [(3, groupe.id)]
+            elif not a_des_favoris and groupe in user.group_ids:
+                vals["group_ids"] = [Command.unlink(groupe.id)]
                 if action and user.action_id == action:
                     vals["action_id"] = False
             if vals:

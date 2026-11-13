@@ -1,5 +1,4 @@
-/** @odoo-module **/
-
+import { user } from "@web/core/user";
 import { patch } from "@web/core/utils/patch";
 import { SearchModel } from "@web/search/search_model";
 
@@ -23,7 +22,8 @@ patch(SearchModel.prototype, {
             domain: filtre.domain,
             context: filtre.context,
             sort: filtre.sort,
-            user_id: false,
+            // Odoo 20 : user_ids (un seul utilisateur = favori personnel)
+            user_ids: [user.userId],
             is_default: true,
         };
         return super._createGroupOfFavorites([...autres, irFilter]);
@@ -37,11 +37,22 @@ patch(SearchModel.prototype, {
         return favorite;
     },
 
-    async _deleteIrFilters(searchItem) {
-        if (searchItem.isFavorisId) {
-            // Favori is_favoris : rien en base côté ir.filters
-            return;
+    /**
+     * Odoo 20 : au changement de vue ou au retour par le fil d'Ariane, les favoris
+     * sont recalés sur les ir.filters ; celui de is_favoris (sans ir.filters) serait
+     * retiré. Il est mis de côté le temps du recalage.
+     */
+    _reconciliateFavorites() {
+        const items = Object.values(this.searchItems).filter((item) => item.isFavorisId);
+        for (const item of items) {
+            item.type = "is_favoris";
         }
-        return super._deleteIrFilters(searchItem);
+        try {
+            return super._reconciliateFavorites();
+        } finally {
+            for (const item of items) {
+                item.type = "favorite";
+            }
+        }
     },
 });

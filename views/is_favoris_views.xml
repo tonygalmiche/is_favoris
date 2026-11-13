@@ -64,7 +64,7 @@
             <search>
                 <field name="name"/>
                 <field name="menu_id"/>
-                <group expand="0" string="Regrouper par">
+                <group>
                     <filter name="group_view_type" string="Type de vue" context="{'group_by': 'nom_type_vue'}"/>
                 </group>
             </search>

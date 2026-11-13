@@ -1,4 +1,4 @@
-# InfoSaône - Gestion des favoris pour Odoo 18
+# InfoSaône - Gestion des favoris pour Odoo 20
 
 Page d'accueil personnelle de favoris : des raccourcis vers des vues Odoo, avec leur recherche (filtres, regroupements, tri), disposés librement sur une grille.
 
@@ -102,29 +102,28 @@ Aucun favori standard d'Odoo (`ir.filters`) n'est créé : le menu ⭐ de la rec
 - Capture : `searchModel.getIrFilterValues()`, la même fonction que les favoris standard ; texte de la recherche à partir des facettes affichées.
 - Ouverture : action d'origine avec la clé de contexte `is_favoris_filtre` ; patch du `SearchModel` qui ajoute le favori comme favori par défaut, en mémoire seulement.
 - Menu d'origine : `menu.setCurrentMenu()` à l'ouverture de l'action.
-- Étoile : composant ajouté au `ControlPanel` (`etoile/`) ; patch du `FormController` pour suivre l'enregistrement affiché ; service `is_favoris` qui charge une fois la liste des favoris de l'utilisateur.
+- Étoile : composant ajouté au `ControlPanel` (`etoile/`) ; enregistrement affiché lu dans le modèle du formulaire (`env.model`) ; service `is_favoris` qui charge une fois la liste des favoris de l'utilisateur.
+- Recherche : favori en mémoire conservé au changement de vue et au retour par le fil d'Ariane (patch de `_reconciliateFavorites`).
 - Page : action client `is_favoris.page` (`page/`).
 - Préférence de taille : `res.users.is_favoris_taille`.
 - Menu Favoris réservé au groupe caché `is_favoris.group_has_favorites` (« Utilisateur avec favoris »), ajouté ou retiré à la création, la suppression ou le changement d'utilisateur d'un favori (`res.users._is_favoris_maj_groupe()`), avec l'action d'accueil ; menus rechargés côté client (`menu.reload()`) quand le nombre de favoris passe de 0 à 1 ou de 1 à 0.
-- Image : enregistrée en superutilisateur après contrôle des droits, sinon Odoo enregistre un SVG en `text/plain` pour un utilisateur non administrateur et il ne s'affiche pas.
+- Image : enregistrée en superutilisateur après contrôle des droits (Odoo 20 refuse un SVG envoyé par un utilisateur non administrateur).
 
-## Migration depuis la version 0.1 (vue Bureau, module is_bureau)
+## Version 20
 
-Script `migrations/18.0.1.0.0/post-migrate.py`, lancé par le `-u is_favoris` :
+Différences avec la version 18 :
 
-- favoris repris avec leur nom, couleur et image ;
-- positions : ordre d'origine sur le bureau, rangé par lignes de 8 ;
-- type de vue et menu d'origine retrouvés ;
-- script `migrations/18.0.1.0.1/post-migrate.py` : groupe « Utilisateur avec favoris » (même id que l'ancienne version) recalculé, page des favoris en action d'accueil des seuls utilisateurs qui ont des favoris (si vide).
-
-Les anciens favoris n'ont pas de recherche mémorisée (l'ancienne version ne l'enregistrait pas) : ils s'ouvrent avec la recherche par défaut du menu ; « Mettre à jour » dans le menu de l'étoile permet d'en ajouter une.
-
-is_bureau n'est plus utilisé : à désinstaller après la mise à jour.
+- Owl 3 : `proxy()` au lieu de `useState()` / `reactive()`, `signal.ref()` au lieu de `useRef()`, `useListener()`, `useProps()`, `this.` dans les templates, `t-call-slot` dans le `ControlPanel` ;
+- icônes Material (`oi`, `data-icon`) au lieu de Font Awesome, qui n'est plus affiché ; le champ Icône garde ses valeurs (`fa-star`…), affichées avec l'icône Material équivalente : favoris repris de la 16 ou de la 18 sans conversion ;
+- droits : un seul `security/ir.access.csv` (droits et domaine) ; plus de droit de lecture sur `ir.ui.view` (vue lue en superutilisateur) ;
+- groupe « Utilisateur avec favoris » : technique, sans privilège ; champ `group_ids` des utilisateurs ;
+- favori en mémoire : `user_ids` au lieu de `user_id` ;
+- pas de script de migration : en 20, les favoris sont repris par le script de migration de la base (tables copiées).
 
 ## Installation
 
 ```bash
-git clone -b 18.0 --single-branch https://github.com/tonygalmiche/is_favoris.git
+git clone -b 20.0 --single-branch https://github.com/tonygalmiche/is_favoris.git
 ```
 
 ## Auteur

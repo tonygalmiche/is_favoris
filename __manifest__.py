@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 {
-    "name": "InfoSaône - Gestion des favoris pour Odoo 18",
-    "version": "18.0.1.0.1",
+    "name": "InfoSaône - Gestion des favoris pour Odoo 20",
+    "version": "20.0.1.0.0",
     "author": "InfoSaône / Tony Galmiche",
     "category": "InfoSaône",
     "description": """
-InfoSaône - Gestion des favoris pour Odoo 18
+InfoSaône - Gestion des favoris pour Odoo 20
 
 - Étoile à côté du titre de chaque page pour l'ajouter aux favoris.
 - Page d'accueil des favoris (grille de raccourcis déplaçables).
@@ -21,14 +21,13 @@ InfoSaône - Gestion des favoris pour Odoo 18
     ],
     "data": [
         "security/is_favoris_security.xml",
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/is_favoris_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
             "is_favoris/static/src/favoris_service.js",
             "is_favoris/static/src/search_model_patch.js",
-            "is_favoris/static/src/form_controller_patch.js",
             "is_favoris/static/src/etoile/etoile.js",
             "is_favoris/static/src/etoile/etoile.xml",
             "is_favoris/static/src/etoile/etoile.scss",

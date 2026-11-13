@@ -118,8 +118,10 @@ $is-favoris-couleurs: (
         }
     }
 
+    // Icône Material (oi) : taille par la variable --oi-font-size d'Odoo 20
     .o_is_favoris_icone {
-        font-size: calc(var(--is-favoris-taille) * 0.34);
+        --oi-font-size: calc(var(--is-favoris-taille) * 0.34);
+        font-size: var(--oi-font-size);
         line-height: 1;
     }
 

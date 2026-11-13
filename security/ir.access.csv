@@ -1,0 +1,2 @@
+id,name,model_id,group_id/id,operation,domain
+access_is_favoris_user,Favoris personnels,is.favoris,base.group_user,crud,"[('user_id', '=', user.id)]"

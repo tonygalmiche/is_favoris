@@ -1,68 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
+    <!-- Owl 3 : this. obligatoire dans le template ; Odoo 20 : icônes Material (oi, data-icon) -->
     <t t-name="is_favoris.Page">
-        <div class="o_action o_is_favoris_page" t-att-style="style">
+        <div class="o_action o_is_favoris_page" t-att-style="this.style">
             <div class="o_is_favoris_barre">
                 <h4 class="m-0">Favoris</h4>
                 <div class="ms-auto d-flex align-items-center gap-2">
                     <span class="text-muted d-none d-md-inline">Taille :</span>
                     <div class="btn-group btn-group-sm">
-                        <t t-foreach="tailles" t-as="taille" t-key="taille.key">
+                        <t t-foreach="this.tailles" t-as="taille" t-key="taille.key">
                             <button type="button" class="btn"
-                                    t-att-class="state.taille === taille.key ? 'btn-primary' : 'btn-secondary'"
+                                    t-att-class="this.state.taille === taille.key ? 'btn-primary' : 'btn-secondary'"
                                     t-on-click="() => this.changerTaille(taille.key)"
-                                    t-esc="taille.label"/>
+                                    t-out="taille.label"/>
                         </t>
                     </div>
                     <nav class="o_cp_switch_buttons btn-group ms-3">
-                        <button type="button" class="btn btn-secondary active" data-tooltip="Page des favoris">
-                            <i class="fa fa-th-large"/>
+                        <button type="button" class="btn btn-secondary active"
+                                data-tooltip="Page des favoris" aria-label="Page des favoris">
+                            <i class="oi oi-fw" data-icon="grid_view" role="img" aria-hidden="true"/>
                         </button>
-                        <button type="button" class="btn btn-secondary" t-on-click="ouvrirListe"
-                                data-tooltip="Liste">
-                            <i class="oi oi-view-list"/>
+                        <button type="button" class="btn btn-secondary" t-on-click="() => this.ouvrirListe()"
+                                data-tooltip="Liste" aria-label="Liste">
+                            <i class="oi oi-fw" data-icon="reorder" role="img" aria-hidden="true"/>
                         </button>
                     </nav>
                 </div>
             </div>
 
-            <div class="o_is_favoris_grille" t-ref="grille" t-att-class="{ o_is_favoris_deplacement: state.dragId }">
-                <div t-if="!state.favoris.length" class="o_is_favoris_vide text-muted">
-                    <i class="fa fa-star-o fa-3x mb-3"/>
+            <div class="o_is_favoris_grille" t-ref="this.grilleRef" t-att-class="{ o_is_favoris_deplacement: this.state.dragId }">
+                <div t-if="!this.state.favoris.length" class="o_is_favoris_vide text-muted">
+                    <i class="oi oi-3x mb-3" data-icon="star" role="img" aria-hidden="true"/>
                     <p>Aucun favori pour l'instant.</p>
-                    <p>Cliquez sur l'étoile <i class="fa fa-star-o"/> à côté du titre d'une page pour l'ajouter ici.</p>
+                    <p>Cliquez sur l'étoile <i class="oi" data-icon="star" role="img" aria-hidden="true"/> à côté du titre d'une page pour l'ajouter ici.</p>
                 </div>
 
-                <t t-foreach="lignes" t-as="ligne" t-key="ligne.numero">
+                <t t-foreach="this.lignes" t-as="ligne" t-key="ligne.numero">
                     <div class="o_is_favoris_ligne">
                         <t t-foreach="ligne.cases" t-as="cellule" t-key="cellule.key">
                             <div class="o_is_favoris_case"
-                                 t-att-class="{ o_is_favoris_survol: state.survol === cellule.key }"
+                                 t-att-class="{ o_is_favoris_survol: this.state.survol === cellule.key }"
                                  t-on-dragover="(ev) => this.onDragOver(ev, cellule.key)"
                                  t-on-drop="(ev) => this.onDrop(ev, cellule.ligne, cellule.colonne)">
                                 <t t-set="favori" t-value="cellule.favori"/>
                                 <div t-if="favori"
-                                     t-att-class="classesCarte(favori)"
+                                     t-att-class="this.classesCarte(favori)"
                                      draggable="true"
                                      data-tooltip-template="is_favoris.Infobulle"
-                                     t-att-data-tooltip-info="infobulle(favori)"
+                                     t-att-data-tooltip-info="this.infobulle(favori)"
                                      t-on-dragstart="(ev) => this.onDragStart(ev, favori)"
-                                     t-on-dragend="onDragEnd"
+                                     t-on-dragend="() => this.onDragEnd()"
                                      t-on-click="() => this.ouvrir(favori)">
                                     <div class="o_is_favoris_outils">
-                                        <button type="button" class="btn btn-link p-0" title="Modifier"
+                                        <button type="button" class="btn btn-link p-0" title="Modifier" aria-label="Modifier"
                                                 t-on-click.stop="() => this.modifier(favori)">
-                                            <i class="fa fa-pencil"/>
+                                            <i class="oi" data-icon="edit" role="img" aria-hidden="true"/>
                                         </button>
-                                        <button type="button" class="btn btn-link p-0" title="Supprimer"
+                                        <button type="button" class="btn btn-link p-0" title="Supprimer" aria-label="Supprimer"
                                                 t-on-click.stop="() => this.supprimer(favori)">
-                                            <i class="fa fa-trash"/>
+                                            <i class="oi" data-icon="delete" role="img" aria-hidden="true"/>
                                         </button>
                                     </div>
-                                    <img t-if="favori.image" class="o_is_favoris_image" t-att-src="imageUrl(favori)" alt="" draggable="false"/>
-                                    <i t-else="" t-attf-class="fa #{icone(favori)} o_is_favoris_icone"/>
-                                    <div t-if="!favori.image_seule" class="o_is_favoris_nom" t-esc="favori.name"/>
+                                    <img t-if="favori.image" class="o_is_favoris_image" t-att-src="this.imageUrl(favori)" alt="" draggable="false"/>
+                                    <i t-else="" class="oi o_is_favoris_icone" t-att-data-icon="this.icone(favori)" role="img" aria-hidden="true"/>
+                                    <div t-if="!favori.image_seule" class="o_is_favoris_nom" t-out="favori.name"/>
                                 </div>
                             </div>
                         </t>
@@ -72,13 +74,14 @@
         </div>
     </t>
 
+    <!-- Infobulle : variables de data-tooltip-info, accessibles par this. (Owl 3) -->
     <t t-name="is_favoris.Infobulle">
-        <div class="fw-bold" t-esc="name"/>
-        <div t-if="chemin" class="small opacity-75" t-esc="chemin"/>
-        <div t-if="vue" class="small opacity-75">Vue : <t t-esc="vue"/></div>
-        <div t-if="filtre" class="small opacity-75">Recherche : <t t-esc="filtre"/></div>
-        <div t-if="creation" class="small opacity-75">
-            Créé le <t t-esc="creation"/><t t-if="miseAJour"> / mis à jour le <t t-esc="miseAJour"/></t>
+        <div class="fw-bold" t-out="this.name"/>
+        <div t-if="this.chemin" class="small opacity-75" t-out="this.chemin"/>
+        <div t-if="this.vue" class="small opacity-75">Vue : <t t-out="this.vue"/></div>
+        <div t-if="this.filtre" class="small opacity-75">Recherche : <t t-out="this.filtre"/></div>
+        <div t-if="this.creation" class="small opacity-75">
+            Créé le <t t-out="this.creation"/><t t-if="this.miseAJour"> / mis à jour le <t t-out="this.miseAJour"/></t>
         </div>
     </t>
 

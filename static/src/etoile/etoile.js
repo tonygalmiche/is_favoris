@@ -1,6 +1,4 @@
-/** @odoo-module **/
-
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart } from "@odoo/owl";
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { useService } from "@web/core/utils/hooks";
@@ -15,16 +13,13 @@ import { ControlPanel } from "@web/search/control_panel/control_panel";
 export class IsFavorisEtoile extends Component {
     static template = "is_favoris.Etoile";
     static components = { Dropdown, DropdownItem };
-    static props = {};
 
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
         this.favorisService = useService("is_favoris");
-        this.favoris = useState(this.favorisService.state);
-        this.formModel = this.env.isFavorisFormModel
-            ? useState(this.env.isFavorisFormModel)
-            : null;
+        // Owl 3 : état du service en proxy(), suivi automatiquement pendant le rendu
+        this.favoris = this.favorisService.state;
         onWillStart(() => (this.visible ? this.favorisService.ensureLoaded() : null));
     }
 
@@ -37,8 +32,9 @@ export class IsFavorisEtoile extends Component {
         return this.env.config?.viewType;
     }
 
+    /** Enregistrement affiché : modèle du formulaire (env.model, en proxy), navigation suivant / précédent comprise */
     get resId() {
-        return this.viewType === "form" ? this.formModel?.root?.resId || false : false;
+        return this.viewType === "form" ? this.env.model?.root?.resId || false : false;
     }
 
     get visible() {
@@ -49,7 +45,6 @@ export class IsFavorisEtoile extends Component {
     }
 
     get existants() {
-        // Lecture via this.favoris (useState) : l'étoile se redessine quand la liste change
         if (!this.favoris.loaded) {
             return [];
         }

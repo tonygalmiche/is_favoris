@@ -282,7 +282,7 @@ class IsFavoris(models.Model):
                 "icone": f.icone,
                 "image": bool(f.image),
                 "image_seule": bool(f.image) and f.image_seule,
-                "view_type": f.view_type or (f.view_id.type if f.view_id else False),
+                "view_type": f.view_type or (f.sudo().view_id.type if f.view_id else False),
                 "chemin_menu": f.chemin_menu,
                 "description_filtre": f.description_filtre or "",
                 "date_creation": format_date(self.env, f.create_date),
@@ -304,8 +304,10 @@ class IsFavoris(models.Model):
     def get_ouverture(self):
         "Données pour ouvrir le favori côté client"
         self.ensure_one()
+        # Vue lue en superutilisateur : pas de droit de lecture sur ir.ui.view pour les utilisateurs
+        view = self.sudo().view_id
         if self.action_id:
-            view_type = self.view_type or (self.view_id.type if self.view_id else False)
+            view_type = self.view_type or (view.type if view else False)
             res = {
                 "action_id": self.action_id.id,
                 "view_type": view_type,
@@ -321,13 +323,13 @@ class IsFavoris(models.Model):
                     "sort": self.sort or "[]",
                 }
             return res
-        if self.view_id:
+        if view:
             # Anciens favoris sans action : ouverture de la vue seule
             return {"action": {
                 "type": "ir.actions.act_window",
                 "name": self.name,
-                "res_model": self.view_id.model,
-                "views": [(self.view_id.id, self.view_id.type)],
+                "res_model": view.model,
+                "views": [(view.id, view.type)],
                 "target": "current",
             }}
         return {}

@@ -1,41 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
+    <!-- Owl 3 : this. obligatoire dans le template ; Odoo 20 : icônes Material (oi, data-icon) -->
     <t t-name="is_favoris.Etoile">
-        <t t-if="visible">
-            <t t-set="liste" t-value="existants"/>
+        <t t-if="this.visible">
+            <t t-set="liste" t-value="this.existants"/>
             <button t-if="!liste.length" type="button"
                     class="btn btn-link o_is_favoris_etoile px-1 py-0"
-                    data-tooltip="Ajouter aux favoris"
-                    t-on-click="ajouter">
-                <i class="fa fa-star-o"/>
+                    data-tooltip="Ajouter aux favoris" aria-label="Ajouter aux favoris"
+                    t-on-click="() => this.ajouter()">
+                <i class="oi" data-icon="star" role="img" aria-hidden="true"/>
             </button>
             <Dropdown t-else="" position="'bottom-start'" menuClass="'o_is_favoris_etoile_menu'">
                 <button type="button" class="btn btn-link o_is_favoris_etoile o_is_favoris_etoile_jaune px-1 py-0"
-                        data-tooltip="Déjà dans les favoris">
-                    <i class="fa fa-star"/>
+                        data-tooltip="Déjà dans les favoris" aria-label="Déjà dans les favoris">
+                    <i class="oi oi-filled" data-icon="star" role="img" aria-hidden="true"/>
                 </button>
                 <t t-set-slot="content">
-                    <t t-set="rechercheAffichee" t-value="descriptionFiltre()"/>
-                    <t t-foreach="favorisMenu" t-as="favori" t-key="favori.id">
+                    <t t-set="rechercheAffichee" t-value="this.descriptionFiltre()"/>
+                    <t t-foreach="this.favorisMenu" t-as="favori" t-key="favori.id">
                         <div class="dropdown-header o_is_favoris_etoile_entete">
                             <div class="fw-bold text-body">
                                 <i t-if="favori.description_filtre and favori.description_filtre === rechercheAffichee"
-                                   class="fa fa-check text-success me-1" title="Recherche affichée"/>
-                                <t t-esc="favori.name"/>
+                                   class="oi text-success me-1" data-icon="check" role="img"
+                                   title="Recherche affichée" aria-label="Recherche affichée"/>
+                                <t t-out="favori.name"/>
                             </div>
-                            <div class="small text-muted" t-esc="favori.description_filtre or 'Sans recherche mémorisée'"/>
+                            <div class="small text-muted" t-out="favori.description_filtre or 'Sans recherche mémorisée'"/>
                         </div>
                         <DropdownItem onSelected="() => this.mettreAJour(favori)">
-                            <i class="fa fa-refresh me-2"/>Mettre à jour avec la vue affichée
+                            <i class="oi me-2" data-icon="autorenew" role="img" aria-hidden="true"/>Mettre à jour avec la vue affichée
                         </DropdownItem>
                         <DropdownItem onSelected="() => this.retirer(favori)">
-                            <i class="fa fa-trash me-2"/>Retirer des favoris
+                            <i class="oi me-2" data-icon="delete" role="img" aria-hidden="true"/>Retirer des favoris
                         </DropdownItem>
                         <div class="dropdown-divider"/>
                     </t>
                     <DropdownItem onSelected="() => this.ajouter()">
-                        <i class="fa fa-plus me-2"/>Ajouter un nouveau favori
+                        <i class="oi me-2" data-icon="add" role="img" aria-hidden="true"/>Ajouter un nouveau favori
                     </DropdownItem>
                 </t>
             </Dropdown>
@@ -45,25 +47,26 @@
     <!-- Étoile juste avant la roue dentée, dans les 3 affichages du panneau de contrôle -->
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
         <!-- Liste des favoris : boutons Page / Liste à droite, comme les boutons de changement de vue -->
-        <xpath expr="//t[@t-slot='control-panel-navigation-additional']" position="before">
-            <nav t-if="env.searchModel?.resModel === 'is.favoris' and env.config.viewType === 'list'"
+        <xpath expr="//t[@t-call-slot='control-panel-navigation-additional']" position="before">
+            <nav t-if="this.env.searchModel?.resModel === 'is.favoris' and this.env.config.viewType === 'list'"
                  class="o_cp_switch_buttons d-print-none d-inline-flex btn-group">
-                <button class="btn btn-secondary" data-tooltip="Page des favoris"
+                <button class="btn btn-secondary" data-tooltip="Page des favoris" aria-label="Page des favoris"
                         t-on-click="() => this.actionService.doAction('is_favoris.action_is_favoris_page', { clearBreadcrumbs: true })">
-                    <i class="fa fa-th-large"/>
+                    <i class="oi oi-fw" data-icon="grid_view" role="img" aria-hidden="true"/>
                 </button>
-                <button class="btn btn-secondary active" data-tooltip="Liste">
-                    <i class="oi oi-view-list"/>
+                <button class="btn btn-secondary active" data-tooltip="Liste" aria-label="Liste">
+                    <i class="oi oi-fw" data-icon="reorder" role="img" aria-hidden="true"/>
                 </button>
             </nav>
         </xpath>
-        <xpath expr="//t[@t-set-slot='breadcrumb-additional-actions']/t[@t-slot='control-panel-additional-actions']" position="before">
+        <xpath expr="//t[@t-set-slot='breadcrumb-additional-actions']/t[@t-call-slot='control-panel-additional-actions']" position="before">
             <IsFavorisEtoile/>
         </xpath>
-        <xpath expr="//t[@t-if='env.config.noBreadcrumbs']/section/t[@t-slot='control-panel-additional-actions']" position="before">
+        <xpath expr="//t[@t-if='this.env.config.noBreadcrumbs']/section/t[@t-call-slot='control-panel-additional-actions']" position="before">
             <IsFavorisEtoile/>
         </xpath>
-        <xpath expr="//t[@t-elif='env.isSmall']/section/t[@t-slot='control-panel-additional-actions']" position="before">
+        <!-- Odoo 20 sur petit écran : actions supplémentaires dans la zone de navigation -->
+        <xpath expr="//div[hasclass('o_control_panel_navigation')]/t[@t-if='this.uiService.isSmall']/t[@t-call-slot='control-panel-additional-actions']" position="before">
             <IsFavorisEtoile/>
         </xpath>
     </t>
