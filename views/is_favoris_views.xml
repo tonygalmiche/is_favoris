@@ -31,6 +31,7 @@
                         <field name="domain" readonly="1" groups="base.group_no_one"/>
                         <field name="context" readonly="1" groups="base.group_no_one"/>
                         <field name="sort" readonly="1" groups="base.group_no_one"/>
+                        <field name="action_data" readonly="1" groups="base.group_no_one" invisible="not action_data"/>
                     </group>
                 </sheet>
             </form>

@@ -165,7 +165,8 @@ export class IsFavorisPage extends Component {
 
     async ouvrir(favori) {
         const res = await this.orm.call("is.favoris", "get_ouverture", [[favori.id]]);
-        if (res.action_id) {
+        if (res.action_id || res.view_type) {
+            // Action enregistrée (action_id) ou action sans id mémorisée (res.action)
             const options = { clearBreadcrumbs: true };
             if (res.view_type) {
                 options.viewType = res.view_type;
@@ -180,7 +181,7 @@ export class IsFavorisPage extends Component {
             if (res.menu_id && this.menu.getMenu(res.menu_id)) {
                 options.onActionReady = () => this.menu.setCurrentMenu(res.menu_id);
             }
-            await this.action.doAction(res.action_id, options);
+            await this.action.doAction(res.action_id || res.action, options);
         } else if (res.action) {
             await this.action.doAction(res.action, { clearBreadcrumbs: true });
         }

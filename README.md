@@ -19,6 +19,8 @@ Une étoile est affichée à côté du titre de chaque page (liste, kanban, pivo
 - Dans ce menu, chaque favori affiche sa recherche mémorisée ; une coche ✓ indique celui qui correspond à la recherche affichée.
 - Si la page a été ouverte depuis un favori, le menu n'affiche que ce favori.
 - Pas d'étoile dans les fenêtres (dialogues), ni sur les pages sans titre (Discussion…).
+- Pages ouvertes par un bouton (action renvoyée par une méthode Python, sans id, ex. opérations d'un compte) : étoile aussi (18.0.1.0.2). Action d'origine mémorisée telle quelle, menu = application affichée, nom = titre de la page.
+- Idem pour une action enregistrée modifiée par un bouton (ex. bouton Factures de la fiche client : action « Factures clients » avec le domaine du client) ; nom = titre de la page - page précédente (« Factures clients - VILLE DE SAINT-PIERRE »).
 
 ## Ce qui est mémorisé
 
@@ -104,6 +106,7 @@ Aucun favori standard d'Odoo (`ir.filters`) n'est créé : le menu ⭐ de la rec
 - Menu d'origine : `menu.setCurrentMenu()` à l'ouverture de l'action.
 - Étoile : composant ajouté au `ControlPanel` (`etoile/`) ; patch du `FormController` pour suivre l'enregistrement affiché ; service `is_favoris` qui charge une fois la liste des favoris de l'utilisateur.
 - Page : action client `is_favoris.page` (`page/`).
+- Action sans id (bouton) : `action._originalAction` du contrôleur courant, lu à `ACTION_MANAGER:UI-UPDATED` (pile des actions mise à jour après le montage de la vue) ; champs `action_data` (JSON de l'action) et `action_cle` (modèle, domaine, nom) pour l'étoile jaune.
 - Préférence de taille : `res.users.is_favoris_taille`.
 - Menu Favoris réservé au groupe caché `is_favoris.group_has_favorites` (« Utilisateur avec favoris »), ajouté ou retiré à la création, la suppression ou le changement d'utilisateur d'un favori (`res.users._is_favoris_maj_groupe()`), avec l'action d'accueil ; menus rechargés côté client (`menu.reload()`) quand le nombre de favoris passe de 0 à 1 ou de 1 à 0.
 - Image : enregistrée en superutilisateur après contrôle des droits, sinon Odoo enregistre un SVG en `text/plain` pour un utilisateur non administrateur et il ne s'affiche pas.
